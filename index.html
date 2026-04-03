@@ -917,6 +917,54 @@ const equipmentMap = {
   'Double Unders':'Jump Rope', 'Jump Rope Singles':'Jump Rope'
 };
 
+// Kcal per rep estimates (based on ~75kg person, functional fitness intensity)
+const kcalPerRep = {
+  'Burpees':1.5, 'Thrusters':1.2, 'Thruster':1.2, 'Wall Balls':0.6,
+  'Kettlebell Swings':0.7, 'Box Jumps':0.8, 'Pull-Ups':0.8, 'Push-Ups':0.4,
+  'Deadlift':1.0, 'Back Squat':0.9, 'Front Squat':0.9, 'Power Clean':1.3,
+  'Clean & Jerk':1.5, 'Snatch':1.4, 'Overhead Press':0.5, 'Push Press':0.6,
+  'Bench Press':0.5, 'Barbell Row':0.5, 'Lunges':0.4, 'Goblet Squats':0.5,
+  'Sit-Ups':0.3, 'V-Ups':0.4, 'Toes-to-Bar':0.5, 'Mountain Climbers':0.3,
+  'Double Unders':0.2, 'Jump Rope Singles':0.1, 'High Knees':0.2,
+  'Dumbbell Snatch':0.8, 'Dumbbell Clean & Jerk':1.0, 'Ring Rows':0.4,
+  'Ring Dips':0.7, 'Handstand Push-Ups':0.9, 'Muscle-Ups':1.5,
+  'Rope Climbs':5.0, 'Pistol Squats':0.8, 'Turkish Get-Ups':2.0,
+  'Box Step-Ups':0.4, 'Hang Power Clean':1.1, 'Hang Clean':1.1,
+  'Push Jerk':0.7, 'Strict Press':0.5, 'Floor Press':0.5,
+  'Romanian Deadlift':0.6, 'Sumo Deadlift':0.9, 'Overhead Squat':0.8,
+  'SDHP':0.7, 'Lateral Jumps':0.3, 'Tuck Jumps':0.6, 'Burpee Box Jump Overs':1.8,
+  'Shuttle Runs':0.5,
+  // Cal/distance-based: estimate per unit
+  'Rowing (Cal)':1.2, 'Calorie Row':1.2, 'Assault Bike (Cal)':1.3,
+  'Ski Erg (Cal)':1.1, 'Running (m)':0.08, 'Bear Crawl (m)':0.3,
+  'Farmer Carry (m)':0.12, 'Plank Hold (sec)':0.08
+};
+
+function estimateKcal(wod) {
+  let total = 0;
+  const rounds = wod.rounds || wod.sets || 1;
+  // For AMRAP, estimate ~3-4 rounds in the time
+  const amrapRounds = wod.timerConfig && wod.timerConfig.type === 'amrap'
+    ? Math.max(1, Math.round((wod.timerConfig.duration || 1200) / 300)) : 0;
+  // For EMOM, each exercise done once per minute for totalRounds minutes
+  const emomRounds = wod.timerConfig && wod.timerConfig.type === 'emom'
+    ? Math.round((wod.timerConfig.totalRounds || 12) / Math.max(1, wod.exercises.length)) : 0;
+  // Tabata: 8 rounds of 20s per station — estimate ~8 reps per 20s station
+  const tabataRounds = wod.timerConfig && wod.timerConfig.type === 'tabata' ? 8 : 0;
+
+  const effectiveRounds = amrapRounds || emomRounds || tabataRounds || rounds;
+
+  wod.exercises.forEach(ex => {
+    const perRep = kcalPerRep[ex.name] || 0.5;
+    const reps = parseInt(ex.reps) || 10;
+    total += perRep * reps * effectiveRounds;
+  });
+
+  // Add ~10% for warm-up/transitions
+  total *= 1.1;
+  return Math.round(total);
+}
+
 function renderWOD() {
   const w = currentWOD;
   document.getElementById('wod-type-label').textContent = w.type.toUpperCase();
@@ -959,6 +1007,8 @@ function renderWOD() {
     <button class="diff-btn" onclick="makeDifficulty(-1)">Easier</button>
     <button class="diff-btn" onclick="makeDifficulty(1)">Harder</button>
   </div>`;
+  const kcal = estimateKcal(w);
+  html += `<div style="text-align:center;margin-top:10px;color:var(--accent);font-size:0.85em;font-weight:600;">Est. ${kcal} kcal</div>`;
   document.getElementById('wod-card').innerHTML = html;
 }
 
@@ -1058,6 +1108,8 @@ function renderConfirmed() {
     const equipTag = equip ? `<span class="exercise-equip">${equip}</span>` : '';
     html += `<div class="exercise-row"><span class="exercise-text">${ex.reps} ${ex.name}${equipTag}</span></div>`;
   });
+  const kcal = estimateKcal(w);
+  html += `<div style="text-align:center;margin-top:10px;color:var(--accent);font-size:0.9em;font-weight:600;">Est. ${kcal} kcal</div>`;
   document.getElementById('confirmed-card').innerHTML = html;
 
   // Show/hide timer button based on config
