@@ -34,20 +34,31 @@ body {
 .screen.active { display:flex; }
 
 /* Home screen */
-#home { justify-content:center; align-items:center; gap:20px; }
-#home h1 { font-size:2.2em; letter-spacing:2px; color:var(--accent); }
-#home p { color:var(--muted); font-size:0.95em; margin-bottom:10px; }
-.choice-grid { display:flex; flex-direction:column; gap:14px; width:100%; max-width:340px; }
-.choice-btn {
-  background: var(--card); border:2px solid var(--accent2); color:var(--text);
-  font-size:1.15em; padding:18px; border-radius:14px; cursor:pointer;
-  display:flex; align-items:center; gap:12px; transition:all .15s;
+#home { align-items:center; gap:16px; padding-top:calc(var(--safe-top) + 16px); }
+#home h1 { font-size:2.2em; letter-spacing:2px; color:var(--accent); margin-bottom:0; }
+#home p { color:var(--muted); font-size:0.95em; }
+.builder-section { width:100%; max-width:380px; }
+.builder-label {
+  font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px;
+  font-weight:600; margin-bottom:8px;
 }
-.choice-btn:active { background:var(--accent2); transform:scale(0.97); }
-.choice-btn .icon { font-size:1.6em; }
-.focus-grid { display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; }
-.focus-btn { flex:1 1 45%; padding:14px; font-size:1em; }
-.divider { color:var(--muted); text-align:center; font-size:0.85em; margin:6px 0; }
+.pill-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.pill {
+  background: var(--card); border:2px solid var(--accent2); color:var(--text);
+  font-size:0.9em; padding:10px 14px; border-radius:30px; cursor:pointer;
+  display:flex; align-items:center; gap:7px; transition:all .15s; white-space:nowrap;
+}
+.pill:active { transform:scale(0.96); }
+.pill.selected { border-color:var(--green); background:rgba(78,204,163,0.12); color:var(--green); }
+.pill svg { flex-shrink:0; }
+.divider { color:var(--muted); text-align:center; font-size:0.85em; margin:4px 0; }
+.generate-btn {
+  width:100%; max-width:380px; padding:16px; border:none; border-radius:14px;
+  font-size:1.15em; font-weight:700; cursor:pointer; transition:all .15s;
+  background:var(--accent2); color:var(--muted);
+}
+.generate-btn.ready { background:var(--green); color:#111; }
+.generate-btn:active { transform:scale(0.97); }
 
 /* WOD screen */
 #wod { gap:14px; }
@@ -213,50 +224,66 @@ body {
 <!-- HOME SCREEN -->
 <div id="home" class="screen active">
   <h1>WOD</h1>
-  <p>Workout of the Day</p>
-  <div class="choice-grid">
-    <button class="choice-btn" onclick="generateWOD('cardio')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.3l7.8-7.8 1-1.1a5.5 5.5 0 000-7.8z"/></svg></span> Cardio
-    </button>
-    <button class="choice-btn" onclick="generateWOD('mixed')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span> Mixed
-    </button>
-    <button class="choice-btn" onclick="generateWOD('strength')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M6.5 6.5v11M17.5 6.5v11M2 9v6M22 9v6M6.5 12h11M2 12h4.5M17.5 12H22"/></svg></span> Strength
-    </button>
+  <p>Build Your Workout</p>
+
+  <!-- Step 1: Focus -->
+  <div class="builder-section">
+    <div class="builder-label">1. Body Focus</div>
+    <div class="pill-grid" id="focus-pills">
+      <button class="pill" onclick="selectPill('focus','any')">Any</button>
+      <button class="pill" onclick="selectPill('focus','upper')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v8M8 6l4 4 4-4M4 16l4-4M20 16l-4-4"/></svg>Arms &amp; Shoulders</button>
+      <button class="pill" onclick="selectPill('focus','core')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M12 2v20"/></svg>Core</button>
+      <button class="pill" onclick="selectPill('focus','legs')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 4v7l-3 9M14 4v7l3 9M8 11h8"/></svg>Legs</button>
+      <button class="pill" onclick="selectPill('focus','back')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8 2 5 6 5 12s3 10 7 10 7-4 7-10S16 2 12 2z"/><path d="M12 2v20"/></svg>Back &amp; Pull</button>
+      <button class="pill" onclick="selectPill('focus','full')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="4" r="2.5"/><path d="M12 6.5v6M12 12.5l-4 7M12 12.5l4 7M6 10h12"/></svg>Full Body</button>
+    </div>
   </div>
-  <div class="divider">&mdash; pick a format &mdash;</div>
-  <div class="choice-grid">
-    <button class="choice-btn" onclick="generateSpecific('chipper')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2"><path d="M4 6h16M4 10h12M4 14h8M4 18h4"/></svg></span> Chipper
-    </button>
-    <button class="choice-btn" onclick="generateSpecific('partner_chipper')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg></span> Partner Chipper
-    </button>
-    <button class="choice-btn" onclick="generateSpecific('amrap')">
-      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span> AMRAP
-    </button>
+
+  <!-- Step 2: Theme -->
+  <div class="builder-section">
+    <div class="builder-label">2. Theme</div>
+    <div class="pill-grid" id="theme-pills">
+      <button class="pill" onclick="selectPill('theme','any')">Any</button>
+      <button class="pill" onclick="selectPill('theme','cardio')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.3l7.8-7.8 1-1.1a5.5 5.5 0 000-7.8z"/></svg>Cardio</button>
+      <button class="pill" onclick="selectPill('theme','mixed')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Mixed</button>
+      <button class="pill" onclick="selectPill('theme','strength')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6.5 6.5v11M17.5 6.5v11M2 9v6M22 9v6M6.5 12h11M2 12h4.5M17.5 12H22"/></svg>Strength</button>
+    </div>
   </div>
-  <div class="divider">&mdash; body focus &mdash;</div>
-  <div class="choice-grid focus-grid">
-    <button class="choice-btn focus-btn" onclick="generateBodyFocus('upper')">
-      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M12 2v8M8 6l4 4 4-4M4 16l4-4M20 16l-4-4M2 20h6M16 20h6"/></svg></span> Arms &amp; Shoulders
-    </button>
-    <button class="choice-btn focus-btn" onclick="generateBodyFocus('core')">
-      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M12 2v20M4.5 8h15M4.5 16h15"/></svg></span> Core
-    </button>
-    <button class="choice-btn focus-btn" onclick="generateBodyFocus('legs')">
-      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M10 4v7l-3 9M14 4v7l3 9M8 11h8"/></svg></span> Legs
-    </button>
-    <button class="choice-btn focus-btn" onclick="generateBodyFocus('back')">
-      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M12 2C8 2 5 6 5 12s3 10 7 10 7-4 7-10S16 2 12 2z"/><path d="M12 2v20"/></svg></span> Back &amp; Pull
-    </button>
-    <button class="choice-btn focus-btn" onclick="generateBodyFocus('full')">
-      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><circle cx="12" cy="4" r="2.5"/><path d="M12 6.5v6M12 12.5l-4 7M12 12.5l4 7M6 10h12"/></svg></span> Full Body
-    </button>
+
+  <!-- Step 3: Format -->
+  <div class="builder-section">
+    <div class="builder-label">3. Format</div>
+    <div class="pill-grid" id="format-pills">
+      <button class="pill" onclick="selectPill('format','any')">Any</button>
+      <button class="pill" onclick="selectPill('format','amrap')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>AMRAP</button>
+      <button class="pill" onclick="selectPill('format','chipper')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 10h12M4 14h8M4 18h4"/></svg>Chipper</button>
+      <button class="pill" onclick="selectPill('format','partner_chipper')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>Partner Chipper</button>
+      <button class="pill" onclick="selectPill('format','emom')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6"/><path d="M12 12l3.5 3.5"/></svg>EMOM</button>
+      <button class="pill" onclick="selectPill('format','rounds')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>Rounds For Time</button>
+      <button class="pill" onclick="selectPill('format','tabata')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Tabata</button>
+      <button class="pill" onclick="selectPill('format','5x5')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>5x5 Strength</button>
+    </div>
   </div>
+
+  <button class="generate-btn" id="generate-btn" onclick="generateFromBuilder()">Generate Workout</button>
+
   <div class="divider">&mdash; or &mdash;</div>
-  <button class="btn btn-outline btn-small" onclick="showHistory()" style="max-width:340px;width:100%;">
+  <button class="btn btn-outline btn-small" onclick="showHistory()" style="max-width:380px;width:100%;">
     Redo a Past Workout
   </button>
 </div>
@@ -336,6 +363,109 @@ body {
 </div>
 
 <script>
+// ── Builder State ──
+const builderState = { focus: null, theme: null, format: null };
+
+function selectPill(category, value) {
+  builderState[category] = value;
+  // Update pill UI
+  const container = document.getElementById(category + '-pills');
+  container.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  updateGenerateBtn();
+}
+
+function updateGenerateBtn() {
+  const btn = document.getElementById('generate-btn');
+  const ready = builderState.focus && builderState.theme && builderState.format;
+  btn.classList.toggle('ready', !!ready);
+}
+
+function generateFromBuilder() {
+  const { focus, theme, format } = builderState;
+  if (!focus || !theme || !format) return;
+
+  // Resolve "any" choices
+  const focusOptions = ['any','upper','core','legs','back','full'];
+  const themeOptions = ['cardio','mixed','strength'];
+  const formatOptions = ['amrap','chipper','partner_chipper','emom','rounds','tabata','5x5'];
+
+  const actualFocus = focus === 'any' ? focusOptions[rand(1, focusOptions.length-1)] : focus;
+  const actualTheme = theme === 'any' ? themeOptions[rand(0, themeOptions.length-1)] : theme;
+  const actualFormat = format === 'any' ? formatOptions[rand(0, formatOptions.length-1)] : format;
+
+  currentFocus = actualFocus === 'any' ? null : actualFocus;
+  currentType = actualTheme;
+
+  // Pick exercises from focus pool or theme pool
+  const pool = currentFocus ? bodyFocusExercises[currentFocus] : exercises[actualTheme];
+  const pickFromPool = (n) => shuffle(pool).slice(0, Math.min(n, pool.length));
+
+  if (actualFormat === 'amrap') {
+    const mins = rand(16, 25);
+    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: defaultReps[name] || '10' }));
+    currentWOD = {
+      type: actualTheme, formatName: 'AMRAP', description: `AMRAP ${mins} min`,
+      exercises: exList, sets: null,
+      timerConfig: { type:'amrap', duration: mins*60 }
+    };
+  } else if (actualFormat === 'chipper') {
+    const exList = pickFromPool(rand(8,12)).map(name => ({
+      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 1.5))
+    }));
+    currentWOD = {
+      type: actualTheme, formatName: 'Chipper', description: 'For Time — work through all exercises once',
+      exercises: exList, sets: null,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else if (actualFormat === 'partner_chipper') {
+    const exList = pickFromPool(rand(8,12)).map(name => ({
+      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 2))
+    }));
+    currentWOD = {
+      type: actualTheme, formatName: 'Partner Chipper',
+      description: 'For Time with a partner — split reps, one works at a time',
+      exercises: exList, sets: null,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else if (actualFormat === 'emom') {
+    const exList = pickFromPool(rand(3,4)).map(name => ({
+      name, reps: String(Math.max(1, Math.round(parseInt(defaultReps[name]||'10') * 0.5)))
+    }));
+    const totalMin = exList.length * rand(3,5);
+    currentWOD = {
+      type: actualTheme, formatName: 'EMOM', description: `EMOM ${totalMin} min`,
+      exercises: exList, sets: null,
+      timerConfig: { type:'emom', totalRounds: totalMin }
+    };
+  } else if (actualFormat === 'rounds') {
+    const rounds = rand(3,5);
+    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: defaultReps[name] || '10' }));
+    currentWOD = {
+      type: actualTheme, formatName: 'Rounds For Time', description: `${rounds} Rounds For Time`,
+      exercises: exList, sets: null, rounds,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else if (actualFormat === 'tabata') {
+    const exList = pickFromPool(rand(3,5)).map(name => ({ name, reps: '20s' }));
+    currentWOD = {
+      type: actualTheme, formatName: 'Tabata', description: '8 rounds: 20s work / 10s rest per station',
+      exercises: exList, sets: null,
+      timerConfig: { type:'tabata', stations: exList.length }
+    };
+  } else if (actualFormat === '5x5') {
+    const exList = pickFromPool(rand(3,4)).map(name => ({ name, reps: '5' }));
+    currentWOD = {
+      type: actualTheme, formatName: '5x5 Strength', description: '5 sets of 5 — rest 2:00 between sets',
+      exercises: exList, sets: 5,
+      timerConfig: { type:'rest', work:0, rest:120, rounds:5 }
+    };
+  }
+
+  renderWOD();
+  showScreen('wod');
+}
+
 // ── State ──
 let currentType = '';
 let currentWOD = null;
@@ -749,7 +879,13 @@ function renderWOD() {
   document.getElementById('wod-card').innerHTML = html;
 }
 
-function reroll() { generateWOD(currentType); }
+function reroll() {
+  if (builderState.focus && builderState.theme && builderState.format) {
+    generateFromBuilder();
+  } else {
+    generateWOD(currentType);
+  }
+}
 
 function getExercisePool() {
   return currentFocus ? bodyFocusExercises[currentFocus] : exercises[currentType];
@@ -1155,6 +1291,15 @@ function loadHistoryWOD(idx) {
   renderWOD();
   showScreen('wod');
 }
+
+// ── Init ──
+// Auto-select "Any" for all builder pills on load
+document.addEventListener('DOMContentLoaded', () => {
+  ['focus','theme','format'].forEach(cat => {
+    const first = document.querySelector(`#${cat}-pills .pill`);
+    if (first) { first.click(); }
+  });
+});
 
 // ── PWA Registration ──
 if ('serviceWorker' in navigator) {
