@@ -133,6 +133,7 @@ body {
 .timer-round { color:var(--muted); font-size:1.1em; text-align:center; }
 .timer-controls { display:flex; gap:12px; }
 .timer-ex-controls { display:flex; gap:12px; }
+.landscape-top-bar { display:none; }
 /* Exercise tracker on timer */
 .timer-exercise-tracker { width:100%; max-width:360px; text-align:center; }
 .timer-ex-current {
@@ -152,10 +153,7 @@ body {
 /* Landscape timer — top bar with Back | exercises | Next */
 @media (orientation: landscape) {
   #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; }
-  /* Top bar: back + exercises + next in one row */
-  .landscape-top-bar {
-    display:none;
-  }
+  /* Portrait controls hidden, landscape bar shown */
   #timer .timer-ex-controls { display:none; }
   #timer .landscape-top-bar {
     display:flex; align-items:center; width:100%; padding:4px 6px; gap:6px;
