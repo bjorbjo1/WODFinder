@@ -153,18 +153,40 @@ body {
 .timer-ex-next-label { font-size:0.85em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
 .timer-ex-finished { font-size:1.8em; font-weight:700; color:var(--green); padding:12px 0; }
 
-/* Landscape timer — big clock only */
+/* Landscape timer — clock left, exercises right */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; position:relative; }
-  #timer .timer-ex-controls,
-  #timer .timer-ex-controls.has-exercises { display:none !important; }
+  #timer {
+    display:grid !important; min-height:100vh; padding:8px;
+    grid-template-columns: 1fr 35vw;
+    grid-template-rows: auto 1fr auto auto;
+    gap:2px 10px;
+  }
   #timer .landscape-top-bar { display:none !important; }
-  #timer .timer-exercise-tracker { display:none; }
-  #timer .timer-display { font-size:min(38vw, 52vh); line-height:1; width:100%; }
-  #timer .timer-phase { font-size:min(5vw, 7vh); width:100%; }
-  #timer .timer-round { font-size:min(3.5vw, 4.5vh); width:100%; }
-  #timer .timer-controls { gap:16px; margin-top:auto; }
-  #timer .timer-controls .btn { padding:8px 24px; font-size:min(3vw, 3.5vh); }
+  /* Clock area — left column */
+  #timer .timer-phase { grid-column:1; grid-row:1; font-size:min(3.5vw, 5vh); text-align:center; align-self:end; }
+  #timer .timer-display { grid-column:1; grid-row:2; font-size:min(28vw, 40vh); line-height:1; align-self:center; text-align:center; }
+  #timer .timer-round { grid-column:1; grid-row:3; font-size:min(2.5vw, 3.5vh); text-align:center; }
+  /* Exercises — right column */
+  #timer .timer-exercise-tracker {
+    grid-column:2; grid-row:1 / 3; align-self:center;
+    max-width:none; width:100%; font-size:0.8em;
+  }
+  #timer .timer-exercise-tracker .timer-ex-current { font-size:1.2em; padding:6px 8px; }
+  #timer .timer-exercise-tracker .timer-ex-done { font-size:0.8em; }
+  #timer .timer-exercise-tracker .timer-ex-next { font-size:0.9em; }
+  #timer .timer-exercise-tracker .timer-ex-next-label { font-size:0.7em; }
+  /* Next/Back — right column below exercises */
+  #timer .timer-ex-controls,
+  #timer .timer-ex-controls.has-exercises {
+    display:flex !important; grid-column:2; grid-row:3; justify-content:center; gap:8px;
+  }
+  #timer .timer-ex-controls .btn { padding:8px 18px; font-size:min(2.2vw, 2.8vh); }
+  /* Pause/Stop — bottom, spanning both columns */
+  #timer .timer-controls {
+    grid-column:1 / -1; grid-row:4; justify-content:center;
+    gap:14px; margin-top:0; padding:6px 0;
+  }
+  #timer .timer-controls .btn { padding:6px 22px; font-size:min(2.5vw, 3vh); }
 }
 
 /* Exercise equipment tag */
