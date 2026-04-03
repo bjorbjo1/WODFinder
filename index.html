@@ -124,15 +124,18 @@ body {
 .back-btn svg { flex-shrink:0; }
 
 /* Timer screen */
-#timer { justify-content:center; align-items:center; gap:12px; position:relative; }
+#timer { justify-content:flex-start; align-items:center; gap:12px; position:relative; padding-top:30px; }
 .timer-display {
   font-size:min(22vw, 30vh); font-weight:700; font-variant-numeric:tabular-nums;
   color:var(--text); text-align:center; line-height:1;
 }
 .timer-phase { font-size:1.4em; color:var(--green); text-align:center; }
 .timer-round { color:var(--muted); font-size:1.1em; text-align:center; }
-.timer-controls { display:flex; gap:12px; }
-.timer-ex-controls { display:flex; gap:12px; }
+.timer-controls { display:flex; gap:12px; margin-top:auto; padding-top:10px; }
+.timer-btn-pause { background:var(--accent2); color:var(--text); border:2px solid rgba(255,255,255,0.15); }
+.timer-btn-stop { background:transparent; color:var(--muted); border:2px solid var(--accent2); }
+.timer-ex-controls { display:none; gap:12px; }
+.timer-ex-controls.has-exercises { display:flex; }
 .landscape-top-bar { display:none; }
 /* Exercise tracker on timer */
 .timer-exercise-tracker { width:100%; max-width:360px; text-align:center; }
@@ -154,7 +157,8 @@ body {
 @media (orientation: landscape) {
   #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; }
   /* Portrait controls hidden, landscape bar shown */
-  #timer .timer-ex-controls { display:none; }
+  #timer .timer-ex-controls,
+  #timer .timer-ex-controls.has-exercises { display:none !important; }
   #timer .landscape-top-bar {
     display:flex; align-items:center; width:100%; padding:4px 6px; gap:6px;
   }
@@ -393,11 +397,11 @@ body {
   <div class="timer-round" id="timer-round"></div>
   <div class="timer-ex-controls" id="timer-ex-controls">
     <button class="btn btn-outline btn-small" id="ex-prev-btn" onclick="prevExercise()">Back</button>
-    <button class="btn btn-accent btn-small" id="ex-next-btn" onclick="nextExercise()">Next</button>
+    <button class="btn btn-green btn-small" id="ex-next-btn" onclick="nextExercise()">Next</button>
   </div>
   <div class="timer-controls">
-    <button class="btn btn-accent" id="timer-toggle" onclick="toggleTimer()">Pause</button>
-    <button class="btn btn-outline" onclick="stopTimer()">Stop</button>
+    <button class="btn timer-btn-pause" id="timer-toggle" onclick="toggleTimer()">Pause</button>
+    <button class="btn timer-btn-stop" onclick="stopTimer()">Stop</button>
   </div>
 </div>
 
@@ -1244,8 +1248,8 @@ function renderExerciseTracker() {
   const exs = currentWOD.exercises;
   const el = document.getElementById('timer-exercises');
   const controls = document.getElementById('timer-ex-controls');
-  if (!exs || !exs.length) { el.innerHTML = ''; controls.style.display = 'none'; return; }
-  controls.style.display = 'flex';
+  if (!exs || !exs.length) { el.innerHTML = ''; controls.classList.add('has-exercises'); controls.classList.remove('has-exercises'); return; }
+  controls.classList.add('has-exercises');
 
   let html = '';
 
@@ -1325,7 +1329,7 @@ function renderLandscapeBar() {
   bar.innerHTML = `
     <button class="ls-btn" onclick="prevExercise()" ${prevDisabled ? 'style="opacity:0.3"' : ''}>Back</button>
     <div class="ls-exercises">${centerHtml}</div>
-    <button class="ls-btn" onclick="nextExercise()" style="background:var(--accent)">${nextLabel}</button>
+    <button class="ls-btn" onclick="nextExercise()" style="background:var(--green);color:#111">${nextLabel}</button>
   `;
 }
 
