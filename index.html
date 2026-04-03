@@ -116,76 +116,53 @@ body {
 /* Back button - top left */
 .back-bar { width:100%; display:flex; align-items:center; margin-bottom:4px; }
 .back-btn {
-  background:none; border:none; color:var(--muted); font-size:0.95em;
-  cursor:pointer; display:flex; align-items:center; gap:4px; padding:6px 2px;
-  transition:color .15s;
+  background:var(--accent2); border:none; color:var(--text); font-size:1em;
+  font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;
+  padding:10px 16px; border-radius:10px; transition:all .15s;
 }
-.back-btn:active { color:var(--text); }
+.back-btn:active { background:var(--accent); transform:scale(0.97); }
 .back-btn svg { flex-shrink:0; }
 
 /* Timer screen */
-#timer { justify-content:flex-start; align-items:center; gap:12px; position:relative; padding-top:30px; }
+#timer { justify-content:flex-start; align-items:center; gap:10px; position:relative; padding-top:20px; }
 .timer-display {
-  font-size:min(22vw, 30vh); font-weight:700; font-variant-numeric:tabular-nums;
+  font-size:min(18vw, 22vh); font-weight:700; font-variant-numeric:tabular-nums;
   color:var(--text); text-align:center; line-height:1;
 }
-.timer-phase { font-size:1.4em; color:var(--green); text-align:center; }
-.timer-round { color:var(--muted); font-size:1.1em; text-align:center; }
-.timer-controls { display:flex; gap:12px; margin-top:auto; padding-top:10px; }
+.timer-phase { font-size:1.2em; color:var(--green); text-align:center; }
+.timer-round { color:var(--muted); font-size:1em; text-align:center; }
+.timer-controls { display:flex; gap:12px; margin-top:auto; padding-top:10px; padding-bottom:10px; }
 .timer-btn-pause { background:var(--accent2); color:var(--text); border:2px solid rgba(255,255,255,0.15); }
 .timer-btn-stop { background:transparent; color:var(--muted); border:2px solid var(--accent2); }
 .timer-ex-controls { display:none; gap:12px; }
 .timer-ex-controls.has-exercises { display:flex; }
 .landscape-top-bar { display:none; }
 /* Exercise tracker on timer */
-.timer-exercise-tracker { width:100%; max-width:360px; text-align:center; }
+.timer-exercise-tracker { width:100%; max-width:380px; text-align:center; }
 .timer-ex-current {
-  font-size:1.5em; font-weight:700; color:var(--text); padding:10px 0;
-  background:var(--accent2); border-radius:10px; margin-bottom:6px;
+  font-size:1.8em; font-weight:700; color:var(--text); padding:12px 8px;
+  background:var(--accent2); border-radius:12px; margin-bottom:6px;
 }
 .timer-ex-done {
-  font-size:0.95em; color:var(--muted); padding:3px 0;
+  font-size:1em; color:var(--muted); padding:4px 0;
   text-decoration:line-through; opacity:0.5;
 }
 .timer-ex-next {
-  font-size:1.05em; color:var(--muted); padding:3px 0;
+  font-size:1.15em; color:var(--muted); padding:4px 0;
 }
-.timer-ex-next-label { font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
-.timer-ex-finished { font-size:1.5em; font-weight:700; color:var(--green); padding:10px 0; }
+.timer-ex-next-label { font-size:0.85em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
+.timer-ex-finished { font-size:1.8em; font-weight:700; color:var(--green); padding:12px 0; }
 
-/* Landscape timer — top bar with Back | exercises | Next */
+/* Landscape timer — big clock only */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; }
-  /* Portrait controls hidden, landscape bar shown */
+  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; position:relative; }
   #timer .timer-ex-controls,
   #timer .timer-ex-controls.has-exercises { display:none !important; }
-  #timer .landscape-top-bar {
-    display:flex; align-items:center; width:100%; padding:4px 6px; gap:6px;
-  }
-  #timer .landscape-top-bar .ls-btn {
-    background:var(--accent2); border:none; color:var(--text); padding:6px 16px;
-    border-radius:8px; font-size:min(2.2vw, 2.8vh); font-weight:600; cursor:pointer;
-    white-space:nowrap; flex-shrink:0;
-  }
-  #timer .landscape-top-bar .ls-btn:active { opacity:0.7; }
-  #timer .landscape-top-bar .ls-exercises {
-    flex:1; text-align:center; overflow:hidden;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  #timer .landscape-top-bar .ls-ex-current {
-    font-size:min(2.5vw, 3.2vh); font-weight:700; color:var(--text);
-    background:rgba(15,52,96,0.6); padding:3px 12px; border-radius:8px; white-space:nowrap;
-  }
-  #timer .landscape-top-bar .ls-ex-next {
-    font-size:min(1.8vw, 2.4vh); color:var(--muted); white-space:nowrap;
-  }
-  #timer .landscape-top-bar .ls-ex-label {
-    font-size:min(1.4vw, 1.8vh); color:var(--accent); text-transform:uppercase; letter-spacing:1px; white-space:nowrap;
-  }
+  #timer .landscape-top-bar { display:none !important; }
   #timer .timer-exercise-tracker { display:none; }
-  #timer .timer-display { font-size:min(30vw, 44vh); line-height:1; width:100%; }
-  #timer .timer-phase { font-size:min(4.5vw, 6vh); width:100%; }
-  #timer .timer-round { font-size:min(3vw, 4vh); width:100%; }
+  #timer .timer-display { font-size:min(38vw, 52vh); line-height:1; width:100%; }
+  #timer .timer-phase { font-size:min(5vw, 7vh); width:100%; }
+  #timer .timer-round { font-size:min(3.5vw, 4.5vh); width:100%; }
   #timer .timer-controls { gap:16px; margin-top:auto; }
   #timer .timer-controls .btn { padding:8px 24px; font-size:min(3vw, 3.5vh); }
 }
@@ -1126,7 +1103,7 @@ function buildTimerPlan() {
   if (cfg.type === 'amrap') {
     phases.push({ label:'AMRAP', duration: cfg.duration, countdown:true, beepAtEnd:true });
   } else if (cfg.type === 'fortime') {
-    phases.push({ label:'GO!', duration: cfg.cap*60, countdown:true, countUp:true, beepAtEnd:true });
+    phases.push({ label:'For Time', duration: cfg.cap*60, countdown:true, countUp:true, beepAtEnd:true });
   } else if (cfg.type === 'emom') {
     for (let r=0; r<cfg.totalRounds; r++) {
       phases.push({ label:`Min ${r+1} of ${cfg.totalRounds}`, duration:60, countdown:true, beepAtEnd:true, round:r+1, totalRounds:cfg.totalRounds });
