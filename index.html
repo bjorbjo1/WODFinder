@@ -1396,6 +1396,13 @@ function toggleTimer() {
 }
 
 function stopTimer() {
+  timerPaused = true;
+  document.getElementById('timer-toggle').textContent = 'Resume';
+  if (!confirm('Stop the workout?')) {
+    timerPaused = false;
+    document.getElementById('timer-toggle').textContent = 'Pause';
+    return;
+  }
   clearInterval(timerInterval);
   releaseWakeLock();
   finishAndShowReport();
