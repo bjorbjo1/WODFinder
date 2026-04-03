@@ -136,42 +136,55 @@ body {
 /* Exercise tracker on timer */
 .timer-exercise-tracker { width:100%; max-width:360px; text-align:center; }
 .timer-ex-current {
-  font-size:1.3em; font-weight:700; color:var(--text); padding:8px 0;
+  font-size:1.5em; font-weight:700; color:var(--text); padding:10px 0;
   background:var(--accent2); border-radius:10px; margin-bottom:6px;
 }
 .timer-ex-done {
-  font-size:0.85em; color:var(--muted); padding:3px 0;
+  font-size:0.95em; color:var(--muted); padding:3px 0;
   text-decoration:line-through; opacity:0.5;
 }
 .timer-ex-next {
-  font-size:0.95em; color:var(--muted); padding:3px 0;
+  font-size:1.05em; color:var(--muted); padding:3px 0;
 }
-.timer-ex-next-label { font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
-.timer-ex-finished { font-size:1.3em; font-weight:700; color:var(--green); padding:8px 0; }
+.timer-ex-next-label { font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+.timer-ex-finished { font-size:1.5em; font-weight:700; color:var(--green); padding:10px 0; }
 
-/* Landscape timer — exercises on top, controls on sides */
+/* Landscape timer — top bar with Back | exercises | Next */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; position:relative; }
-  #timer .timer-exercise-tracker {
-    position:absolute; top:6px; left:50%; transform:translateX(-50%);
-    width:90vw; max-width:none; text-align:center; font-size:0.75em;
-    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:nowrap;
+  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; }
+  /* Top bar: back + exercises + next in one row */
+  .landscape-top-bar {
+    display:none;
   }
-  #timer .timer-exercise-tracker .timer-ex-current { font-size:0.95em; padding:3px 10px; margin:0; white-space:nowrap; }
-  #timer .timer-exercise-tracker .timer-ex-done { font-size:0.7em; white-space:nowrap; }
-  #timer .timer-exercise-tracker .timer-ex-next { font-size:0.75em; white-space:nowrap; }
-  #timer .timer-exercise-tracker .timer-ex-next-label { font-size:0.6em; margin:0; white-space:nowrap; }
-  #timer .timer-ex-controls {
-    position:absolute; top:6px; width:100%; display:flex; justify-content:space-between;
-    padding:0 10px; flex-direction:row; gap:0;
+  #timer .timer-ex-controls { display:none; }
+  #timer .landscape-top-bar {
+    display:flex; align-items:center; width:100%; padding:4px 6px; gap:6px;
   }
-  #timer .timer-ex-controls .btn { padding:6px 16px; font-size:min(2.5vw, 3vh); }
-  #timer #ex-prev-btn { order:0; }
-  #timer #ex-next-btn { order:1; }
-  #timer .timer-display { font-size:min(30vw, 42vh); line-height:1; width:100%; margin-top:min(4vh, 24px); }
+  #timer .landscape-top-bar .ls-btn {
+    background:var(--accent2); border:none; color:var(--text); padding:6px 16px;
+    border-radius:8px; font-size:min(2.2vw, 2.8vh); font-weight:600; cursor:pointer;
+    white-space:nowrap; flex-shrink:0;
+  }
+  #timer .landscape-top-bar .ls-btn:active { opacity:0.7; }
+  #timer .landscape-top-bar .ls-exercises {
+    flex:1; text-align:center; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  #timer .landscape-top-bar .ls-ex-current {
+    font-size:min(2.5vw, 3.2vh); font-weight:700; color:var(--text);
+    background:rgba(15,52,96,0.6); padding:3px 12px; border-radius:8px; white-space:nowrap;
+  }
+  #timer .landscape-top-bar .ls-ex-next {
+    font-size:min(1.8vw, 2.4vh); color:var(--muted); white-space:nowrap;
+  }
+  #timer .landscape-top-bar .ls-ex-label {
+    font-size:min(1.4vw, 1.8vh); color:var(--accent); text-transform:uppercase; letter-spacing:1px; white-space:nowrap;
+  }
+  #timer .timer-exercise-tracker { display:none; }
+  #timer .timer-display { font-size:min(30vw, 44vh); line-height:1; width:100%; }
   #timer .timer-phase { font-size:min(4.5vw, 6vh); width:100%; }
   #timer .timer-round { font-size:min(3vw, 4vh); width:100%; }
-  #timer .timer-controls { gap:16px; }
+  #timer .timer-controls { gap:16px; margin-top:auto; }
   #timer .timer-controls .btn { padding:8px 24px; font-size:min(3vw, 3.5vh); }
 }
 
@@ -375,6 +388,7 @@ body {
 
 <!-- TIMER SCREEN -->
 <div id="timer" class="screen">
+  <div class="landscape-top-bar" id="landscape-top-bar"></div>
   <div class="timer-exercise-tracker" id="timer-exercises"></div>
   <div class="timer-phase" id="timer-phase"></div>
   <div class="timer-display" id="timer-display">00:00</div>
@@ -1199,6 +1213,7 @@ function renderExerciseTracker() {
     // In EMOM, prev/next not used for individual exercises
     document.getElementById('ex-prev-btn').style.display = 'none';
     document.getElementById('ex-next-btn').textContent = emomRoundDone >= (currentWOD.timerConfig.totalRounds || 0) ? 'Done' : 'Round Done';
+    renderLandscapeBar();
     return;
   }
 
@@ -1225,6 +1240,43 @@ function renderExerciseTracker() {
   document.getElementById('ex-prev-btn').disabled = currentExIdx <= 0;
   document.getElementById('ex-prev-btn').style.opacity = currentExIdx <= 0 ? '0.3' : '1';
   document.getElementById('ex-next-btn').textContent = currentExIdx >= exs.length - 1 ? 'Done' : 'Next';
+  renderLandscapeBar();
+}
+
+function renderLandscapeBar() {
+  const bar = document.getElementById('landscape-top-bar');
+  const exs = currentWOD.exercises;
+  if (!exs || !exs.length) { bar.innerHTML = ''; return; }
+
+  let centerHtml = '';
+  if (isEmomMode()) {
+    const phase = timerPlan && timerPlan[timerPhaseIdx];
+    const roundNum = phase ? phase.round : (emomRoundDone + 1);
+    const total = phase ? phase.totalRounds : (currentWOD.timerConfig.totalRounds || '?');
+    const allExs = exs.map(ex => `${ex.reps} ${ex.name}`).join(' + ');
+    centerHtml = `<span class="ls-ex-current">${allExs}</span>
+      <span class="ls-ex-label">Rd ${roundNum}/${total}</span>`;
+  } else if (currentExIdx < exs.length) {
+    const cur = exs[currentExIdx];
+    centerHtml = `<span class="ls-ex-current">${cur.reps} ${cur.name}</span>`;
+    if (currentExIdx + 1 < exs.length) {
+      const nxt = exs[currentExIdx + 1];
+      centerHtml += `<span class="ls-ex-label">next</span><span class="ls-ex-next">${nxt.reps} ${nxt.name}</span>`;
+    }
+  } else {
+    centerHtml = `<span class="ls-ex-current" style="color:var(--green)">All done!</span>`;
+  }
+
+  const prevDisabled = isEmomMode() ? true : currentExIdx <= 0;
+  const nextLabel = isEmomMode()
+    ? (emomRoundDone >= (currentWOD.timerConfig.totalRounds || 0) ? 'Done' : 'Round Done')
+    : (currentExIdx >= exs.length - 1 ? 'Done' : 'Next');
+
+  bar.innerHTML = `
+    <button class="ls-btn" onclick="prevExercise()" ${prevDisabled ? 'style="opacity:0.3"' : ''}>Back</button>
+    <div class="ls-exercises">${centerHtml}</div>
+    <button class="ls-btn" onclick="nextExercise()" style="background:var(--accent)">${nextLabel}</button>
+  `;
 }
 
 function nextExercise() {
