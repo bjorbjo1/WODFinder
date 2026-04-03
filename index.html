@@ -82,19 +82,19 @@ body {
 /* Timer screen */
 #timer { justify-content:center; align-items:center; gap:20px; }
 .timer-display {
-  font-size:4em; font-weight:700; font-variant-numeric:tabular-nums;
-  color:var(--text); text-align:center;
+  font-size:min(22vw, 30vh); font-weight:700; font-variant-numeric:tabular-nums;
+  color:var(--text); text-align:center; line-height:1;
 }
-.timer-phase { font-size:1.2em; color:var(--green); text-align:center; }
-.timer-round { color:var(--muted); font-size:1em; text-align:center; }
+.timer-phase { font-size:1.4em; color:var(--green); text-align:center; }
+.timer-round { color:var(--muted); font-size:1.1em; text-align:center; }
 .timer-controls { display:flex; gap:12px; }
 
 /* Landscape timer — fill the screen */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:8px; min-height:100vh; }
-  #timer .timer-display { font-size:min(28vw, 38vh); line-height:1; }
-  #timer .timer-phase { font-size:min(5vw, 6vh); }
-  #timer .timer-round { font-size:min(3.5vw, 4vh); }
+  #timer { padding:10px; gap:4px; min-height:100vh; }
+  #timer .timer-display { font-size:min(40vw, 55vh); line-height:1; }
+  #timer .timer-phase { font-size:min(6vw, 8vh); }
+  #timer .timer-round { font-size:min(4vw, 5vh); }
   #timer .timer-controls { gap:16px; }
   #timer .timer-controls .btn { padding:10px 28px; font-size:min(3.5vw, 4vh); }
 }
@@ -152,6 +152,11 @@ body {
 .history-wod-name { font-size:1em; font-weight:600; color:var(--green); margin:4px 0; }
 .history-type { font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; }
 .history-exercises { font-size:0.85em; color:var(--muted); margin-top:6px; }
+.history-delete {
+  float:right; background:var(--accent); border:none; color:#fff; width:28px; height:28px;
+  border-radius:8px; font-size:0.85em; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.history-delete:active { opacity:0.7; }
 </style>
 </head>
 <body>
@@ -169,6 +174,18 @@ body {
     </button>
     <button class="choice-btn" onclick="generateWOD('strength')">
       <span class="icon">&#9883;</span> Strength
+    </button>
+  </div>
+  <div class="divider">&mdash; pick a format &mdash;</div>
+  <div class="choice-grid">
+    <button class="choice-btn" onclick="generateSpecific('chipper')">
+      <span class="icon">&#9776;</span> Chipper
+    </button>
+    <button class="choice-btn" onclick="generateSpecific('partner_chipper')">
+      <span class="icon">&#9776;</span> Partner Chipper
+    </button>
+    <button class="choice-btn" onclick="generateSpecific('amrap')">
+      <span class="icon">&#8635;</span> AMRAP
     </button>
   </div>
   <div class="divider">&mdash; or &mdash;</div>
@@ -404,6 +421,51 @@ function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=
 function pickN(type, n) {
   const pool = shuffle(exercises[type]);
   return pool.slice(0, Math.min(n, pool.length));
+}
+
+function pickNAll(n) {
+  const all = [...exercises.cardio, ...exercises.mixed, ...exercises.strength];
+  return shuffle([...new Set(all)]).slice(0, n);
+}
+
+// Specific format generators (Chipper, Partner Chipper, AMRAP from menu)
+function generateSpecific(format) {
+  currentType = 'mixed'; // use mixed pool for swaps/adds
+  if (format === 'chipper') {
+    const exNames = pickNAll(rand(8,12));
+    const exList = exNames.map(name => ({
+      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 1.5))
+    }));
+    currentWOD = {
+      type:'mixed', formatName:'Chipper', description:'For Time — work through all exercises once',
+      exercises: exList, sets: null,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else if (format === 'partner_chipper') {
+    const exNames = pickNAll(rand(8,12));
+    const exList = exNames.map(name => ({
+      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 2))
+    }));
+    currentWOD = {
+      type:'mixed', formatName:'Partner Chipper',
+      description:'For Time with a partner — split reps however you like, one works at a time',
+      exercises: exList, sets: null,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else if (format === 'amrap') {
+    const mins = rand(16,25);
+    const exNames = pickNAll(rand(4,6));
+    const exList = exNames.map(name => ({
+      name, reps: defaultReps[name] || '10'
+    }));
+    currentWOD = {
+      type:'mixed', formatName:'AMRAP', description:`AMRAP ${mins} min`,
+      exercises: exList, sets: null,
+      timerConfig: { type:'amrap', duration: mins*60 }
+    };
+  }
+  renderWOD();
+  showScreen('wod');
 }
 
 function generateWOD(type) {
@@ -730,14 +792,24 @@ function showHistory() {
     const d = new Date(entry.date);
     const dateStr = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     const exSummary = entry.wod.exercises.map(e => `${e.reps} ${e.name}`).join(' | ');
-    return `<div class="history-item" onclick="loadHistoryWOD(${i})" style="margin-bottom:10px;">
-      <div class="history-date">${dateStr}</div>
-      <div class="history-wod-name">${entry.wod.formatName}</div>
-      <div class="history-type">${entry.wod.type}</div>
-      <div class="history-exercises">${exSummary}</div>
+    return `<div class="history-item" style="margin-bottom:10px;">
+      <button class="history-delete" onclick="event.stopPropagation();deleteHistoryWOD(${i})" title="Delete">&#10005;</button>
+      <div onclick="loadHistoryWOD(${i})">
+        <div class="history-date">${dateStr}</div>
+        <div class="history-wod-name">${entry.wod.formatName}</div>
+        <div class="history-type">${entry.wod.type}</div>
+        <div class="history-exercises">${exSummary}</div>
+      </div>
     </div>`;
   }).join('');
   showScreen('history');
+}
+
+function deleteHistoryWOD(idx) {
+  const h = getHistory();
+  h.splice(idx, 1);
+  saveHistory(h);
+  showHistory();
 }
 
 function loadHistoryWOD(idx) {
