@@ -124,7 +124,8 @@ body {
 .back-btn svg { flex-shrink:0; }
 
 /* Timer screen */
-#timer { justify-content:center; align-items:center; gap:10px; position:relative; }
+#timer { justify-content:flex-start; align-items:center; gap:10px; position:relative; }
+.timer-spacer { flex:1; }
 .timer-display {
   font-size:min(18vw, 22vh); font-weight:700; font-variant-numeric:tabular-nums;
   color:var(--text); text-align:center; line-height:1;
@@ -132,7 +133,7 @@ body {
 .timer-phase { font-size:1.2em; color:var(--green); text-align:center; }
 .timer-round { color:var(--muted); font-size:1em; text-align:center; }
 .timer-controls-wrapper {
-  width:100%; margin-top:auto; padding:16px 0; padding-bottom:calc(16px + var(--safe-bottom));
+  width:100%; padding:16px 0; padding-bottom:calc(16px + var(--safe-bottom));
   display:flex; justify-content:center;
 }
 .timer-controls { display:flex; gap:12px; }
@@ -168,6 +169,7 @@ body {
     align-items:center;
   }
   #timer .landscape-top-bar { display:none !important; }
+  #timer .timer-spacer { display:none; }
   /* Clock area — left column, centered via surrounding 1fr rows */
   #timer .timer-phase { grid-column:1; grid-row:2; font-size:min(3vw, 4vh); text-align:center; padding-bottom:2px; }
   #timer .timer-display { grid-column:1; grid-row:3; font-size:min(20vw, 30vh); line-height:1; text-align:center; }
@@ -397,6 +399,7 @@ body {
 
 <!-- TIMER SCREEN -->
 <div id="timer" class="screen">
+  <div class="timer-spacer"></div>
   <div class="landscape-top-bar" id="landscape-top-bar"></div>
   <div class="timer-exercise-tracker" id="timer-exercises"></div>
   <div class="timer-phase" id="timer-phase"></div>
@@ -406,6 +409,7 @@ body {
     <button class="btn btn-outline btn-small" id="ex-prev-btn" onclick="prevExercise()">Back</button>
     <button class="btn btn-green btn-small" id="ex-next-btn" onclick="nextExercise()">Next</button>
   </div>
+  <div class="timer-spacer"></div>
   <div class="timer-controls-wrapper">
     <div class="timer-controls">
       <button class="btn timer-btn-pause" id="timer-toggle" onclick="toggleTimer()">Pause</button>
