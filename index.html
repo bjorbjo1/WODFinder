@@ -80,7 +80,7 @@ body {
 .btn-small { padding:10px 14px; font-size:0.9em; }
 
 /* Timer screen */
-#timer { justify-content:center; align-items:center; gap:20px; }
+#timer { justify-content:center; align-items:center; gap:12px; }
 .timer-display {
   font-size:min(22vw, 30vh); font-weight:700; font-variant-numeric:tabular-nums;
   color:var(--text); text-align:center; line-height:1;
@@ -88,13 +88,31 @@ body {
 .timer-phase { font-size:1.4em; color:var(--green); text-align:center; }
 .timer-round { color:var(--muted); font-size:1.1em; text-align:center; }
 .timer-controls { display:flex; gap:12px; }
+.timer-ex-controls { display:flex; gap:12px; }
+/* Exercise tracker on timer */
+.timer-exercise-tracker { width:100%; max-width:360px; text-align:center; }
+.timer-ex-current {
+  font-size:1.3em; font-weight:700; color:var(--text); padding:8px 0;
+  background:var(--accent2); border-radius:10px; margin-bottom:6px;
+}
+.timer-ex-done {
+  font-size:0.85em; color:var(--muted); padding:3px 0;
+  text-decoration:line-through; opacity:0.5;
+}
+.timer-ex-next {
+  font-size:0.95em; color:var(--muted); padding:3px 0;
+}
+.timer-ex-next-label { font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+.timer-ex-finished { font-size:1.3em; font-weight:700; color:var(--green); padding:8px 0; }
 
 /* Landscape timer — fill the screen */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:4px; min-height:100vh; }
-  #timer .timer-display { font-size:min(40vw, 55vh); line-height:1; }
-  #timer .timer-phase { font-size:min(6vw, 8vh); }
-  #timer .timer-round { font-size:min(4vw, 5vh); }
+  #timer { padding:10px; gap:4px; min-height:100vh; flex-direction:row; flex-wrap:wrap; }
+  #timer .timer-exercise-tracker { display:none; }
+  #timer .timer-ex-controls { display:none; }
+  #timer .timer-display { font-size:min(40vw, 55vh); line-height:1; width:100%; }
+  #timer .timer-phase { font-size:min(6vw, 8vh); width:100%; }
+  #timer .timer-round { font-size:min(4vw, 5vh); width:100%; }
   #timer .timer-controls { gap:16px; }
   #timer .timer-controls .btn { padding:10px 28px; font-size:min(3.5vw, 4vh); }
 }
@@ -232,9 +250,14 @@ body {
 
 <!-- TIMER SCREEN -->
 <div id="timer" class="screen">
+  <div class="timer-exercise-tracker" id="timer-exercises"></div>
   <div class="timer-phase" id="timer-phase"></div>
   <div class="timer-display" id="timer-display">00:00</div>
   <div class="timer-round" id="timer-round"></div>
+  <div class="timer-ex-controls" id="timer-ex-controls">
+    <button class="btn btn-outline btn-small" id="ex-prev-btn" onclick="prevExercise()">Back</button>
+    <button class="btn btn-accent btn-small" id="ex-next-btn" onclick="nextExercise()">Next</button>
+  </div>
   <div class="timer-controls">
     <button class="btn btn-accent" id="timer-toggle" onclick="toggleTimer()">Pause</button>
     <button class="btn btn-outline" onclick="stopTimer()">Stop</button>
@@ -276,6 +299,7 @@ let timerPhaseIdx = 0;
 let timerPhaseRemaining = 0;
 let wakeLock = null;
 let audioCtx = null;
+let currentExIdx = 0;
 
 // ── Screens ──
 function showScreen(id) {
@@ -728,8 +752,10 @@ function startTimer() {
   if (!timerPlan.length) return;
   timerPhaseIdx = 0;
   timerPaused = false;
+  currentExIdx = 0;
   requestWakeLock();
   showScreen('timer');
+  renderExerciseTracker();
   startPhase();
 }
 
@@ -775,6 +801,53 @@ function nextPhase() {
     return;
   }
   startPhase();
+}
+
+function renderExerciseTracker() {
+  const exs = currentWOD.exercises;
+  const el = document.getElementById('timer-exercises');
+  const controls = document.getElementById('timer-ex-controls');
+  if (!exs || !exs.length) { el.innerHTML = ''; controls.style.display = 'none'; return; }
+  controls.style.display = 'flex';
+
+  let html = '';
+  // Show last completed exercise (struck through)
+  if (currentExIdx > 0) {
+    const prev = exs[currentExIdx - 1];
+    html += `<div class="timer-ex-done">${prev.reps} ${prev.name}</div>`;
+  }
+  if (currentExIdx < exs.length) {
+    // Current exercise
+    const cur = exs[currentExIdx];
+    html += `<div class="timer-ex-current">${cur.reps} ${cur.name}</div>`;
+    // Next up
+    if (currentExIdx + 1 < exs.length) {
+      const nxt = exs[currentExIdx + 1];
+      html += `<div class="timer-ex-next-label">Up next</div>`;
+      html += `<div class="timer-ex-next">${nxt.reps} ${nxt.name}</div>`;
+    }
+  } else {
+    html += `<div class="timer-ex-finished">All exercises done!</div>`;
+  }
+  // Progress
+  html += `<div style="color:var(--muted);font-size:0.75em;margin-top:6px;">${Math.min(currentExIdx + 1, exs.length)} / ${exs.length}</div>`;
+  el.innerHTML = html;
+
+  // Button states
+  document.getElementById('ex-prev-btn').disabled = currentExIdx <= 0;
+  document.getElementById('ex-prev-btn').style.opacity = currentExIdx <= 0 ? '0.3' : '1';
+  document.getElementById('ex-next-btn').textContent = currentExIdx >= exs.length - 1 ? 'Done' : 'Next';
+}
+
+function nextExercise() {
+  shortBeep();
+  if (currentExIdx < currentWOD.exercises.length) currentExIdx++;
+  renderExerciseTracker();
+}
+
+function prevExercise() {
+  if (currentExIdx > 0) currentExIdx--;
+  renderExerciseTracker();
 }
 
 function renderTimer() {
