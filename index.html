@@ -33,10 +33,23 @@ body {
 .screen { display:none; flex-direction:column; min-height:calc(100vh - var(--safe-top)); padding:20px; }
 .screen.active { display:flex; }
 
-/* Home screen */
-#home { align-items:center; gap:16px; padding-top:calc(var(--safe-top) + 16px); }
-#home h1 { font-size:2.2em; letter-spacing:2px; color:var(--accent); margin-bottom:0; }
-#home p { color:var(--muted); font-size:0.95em; }
+/* Start screen */
+#start { justify-content:center; align-items:center; gap:24px; }
+#start h1 { font-size:2.8em; letter-spacing:3px; color:var(--accent); }
+#start p { color:var(--muted); font-size:0.95em; }
+.start-grid { display:flex; flex-direction:column; gap:14px; width:100%; max-width:340px; }
+.start-btn {
+  background:var(--card); border:2px solid var(--accent2); color:var(--text);
+  font-size:1.2em; padding:22px 20px; border-radius:16px; cursor:pointer;
+  display:flex; align-items:center; gap:14px; transition:all .15s;
+}
+.start-btn:active { background:var(--accent2); transform:scale(0.97); }
+.start-btn svg { flex-shrink:0; }
+.start-btn-sub { font-size:0.65em; color:var(--muted); display:block; font-weight:400; }
+
+/* Builder screen */
+#builder { align-items:center; gap:16px; padding-top:calc(var(--safe-top) + 16px); }
+#builder h2 { font-size:1.4em; color:var(--accent); }
 .builder-section { width:100%; max-width:380px; }
 .builder-label {
   font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px;
@@ -59,6 +72,15 @@ body {
 }
 .generate-btn.ready { background:var(--green); color:#111; }
 .generate-btn:active { transform:scale(0.97); }
+
+/* Star rating */
+.star-rating { display:inline-flex; gap:2px; margin-top:4px; }
+.star-btn {
+  background:none; border:none; font-size:1.2em; cursor:pointer; padding:2px;
+  color:var(--accent2); transition:color .1s;
+}
+.star-btn.filled { color:#f5a623; }
+.star-btn:active { transform:scale(1.2); }
 
 /* WOD screen */
 #wod { gap:14px; }
@@ -221,10 +243,29 @@ body {
 </head>
 <body>
 
-<!-- HOME SCREEN -->
-<div id="home" class="screen active">
+<!-- START SCREEN -->
+<div id="start" class="screen active">
   <h1>WOD</h1>
-  <p>Build Your Workout</p>
+  <p>Workout of the Day</p>
+  <div class="start-grid">
+    <button class="start-btn" onclick="showScreen('builder')">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      <div>New Workout<span class="start-btn-sub">Choose focus, theme &amp; format</span></div>
+    </button>
+    <button class="start-btn" onclick="showHistory()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/><path d="M3.05 11a9 9 0 0117.9 0"/></svg>
+      <div>Redo<span class="start-btn-sub">Repeat &amp; rate past workouts</span></div>
+    </button>
+    <button class="start-btn" onclick="surpriseMe()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>
+      <div>Surprise Me<span class="start-btn-sub">Totally random workout</span></div>
+    </button>
+  </div>
+</div>
+
+<!-- BUILDER SCREEN -->
+<div id="builder" class="screen">
+  <h2>Build Your Workout</h2>
 
   <!-- Step 1: Focus -->
   <div class="builder-section">
@@ -281,11 +322,7 @@ body {
   </div>
 
   <button class="generate-btn" id="generate-btn" onclick="generateFromBuilder()">Generate Workout</button>
-
-  <div class="divider">&mdash; or &mdash;</div>
-  <button class="btn btn-outline btn-small" onclick="showHistory()" style="max-width:380px;width:100%;">
-    Redo a Past Workout
-  </button>
+  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="max-width:380px;width:100%;margin-top:4px;">Back</button>
 </div>
 
 <!-- WOD SCREEN -->
@@ -297,7 +334,7 @@ body {
     <button class="btn btn-outline" onclick="reroll()">&#8635; New WOD</button>
     <button class="btn btn-green" onclick="confirmWOD()">Confirm</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:6px;">Back</button>
+  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:6px;">Back</button>
 </div>
 
 <!-- CONFIRMED SCREEN (with timer launch) -->
@@ -310,7 +347,7 @@ body {
   <div class="btn-row" style="width:100%;">
     <button class="btn btn-green" onclick="logWorkout()">Log as Done</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="width:100%;">Home</button>
+  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="width:100%;">Home</button>
 </div>
 
 <!-- TIMER SCREEN -->
@@ -337,14 +374,14 @@ body {
   <div class="btn-row">
     <button class="btn btn-green" onclick="logWorkoutWithReport()">Log as Done</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:6px;">Home</button>
+  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:6px;">Home</button>
 </div>
 
 <!-- HISTORY SCREEN -->
 <div id="history" class="screen">
   <h2>Past Workouts</h2>
   <div id="history-list"></div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:auto;padding-top:14px;">Back</button>
+  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:auto;padding-top:14px;">Back</button>
 </div>
 
 <!-- EDIT MODAL -->
@@ -379,6 +416,14 @@ function updateGenerateBtn() {
   const btn = document.getElementById('generate-btn');
   const ready = builderState.focus && builderState.theme && builderState.format;
   btn.classList.toggle('ready', !!ready);
+}
+
+function surpriseMe() {
+  // Set all to random and generate
+  builderState.focus = 'any';
+  builderState.theme = 'any';
+  builderState.format = 'any';
+  generateFromBuilder();
 }
 
 function generateFromBuilder() {
@@ -1220,7 +1265,7 @@ function logWorkoutWithReport() {
   if (h.length > 100) h.length = 100;
   saveHistory(h);
   alert('Workout logged!');
-  showScreen('home');
+  showScreen('start');
 }
 
 // ── History (localStorage) ──
@@ -1263,18 +1308,30 @@ function showHistory() {
       reportHtml = `<button class="history-report-toggle" onclick="event.stopPropagation();this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Report</button>
         <div class="history-report" style="display:none">${lines}</div>`;
     }
+    const rating = entry.rating || 0;
+    const stars = [1,2,3,4].map(s =>
+      `<button class="star-btn ${s <= rating ? 'filled' : ''}" onclick="event.stopPropagation();rateWOD(${i},${s})">&#9733;</button>`
+    ).join('');
     return `<div class="history-item" style="margin-bottom:10px;">
       <button class="history-delete" onclick="event.stopPropagation();deleteHistoryWOD(${i})" title="Delete">&#10005;</button>
       <div onclick="loadHistoryWOD(${i})">
         <div class="history-date">${dateStr}${totalStr}</div>
         <div class="history-wod-name">${entry.wod.formatName}</div>
         <div class="history-type">${entry.wod.type}</div>
+        <div class="star-rating">${stars}</div>
         <div class="history-exercises">${exSummary}</div>
         ${reportHtml}
       </div>
     </div>`;
   }).join('');
   showScreen('history');
+}
+
+function rateWOD(idx, stars) {
+  const h = getHistory();
+  h[idx].rating = h[idx].rating === stars ? 0 : stars; // tap same star to clear
+  saveHistory(h);
+  showHistory();
 }
 
 function deleteHistoryWOD(idx) {
@@ -1294,12 +1351,11 @@ function loadHistoryWOD(idx) {
 
 // ── Init ──
 // Auto-select "Any" for all builder pills on load
-document.addEventListener('DOMContentLoaded', () => {
-  ['focus','theme','format'].forEach(cat => {
-    const first = document.querySelector(`#${cat}-pills .pill`);
-    if (first) { first.click(); }
-  });
+['focus','theme','format'].forEach(cat => {
+  const first = document.querySelector(`#${cat}-pills .pill`);
+  if (first) { first.classList.add('selected'); builderState[cat] = 'any'; }
 });
+updateGenerateBtn();
 
 // ── PWA Registration ──
 if ('serviceWorker' in navigator) {
