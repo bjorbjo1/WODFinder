@@ -188,6 +188,24 @@ body {
   border-radius:8px; font-size:0.85em; cursor:pointer; display:flex; align-items:center; justify-content:center;
 }
 .history-delete:active { opacity:0.7; }
+/* Report screen */
+#report { gap:14px; }
+#report h2 { color:var(--green); font-size:1.4em; text-align:center; }
+.report-total { text-align:center; font-size:1.6em; font-weight:700; color:var(--accent); }
+.report-row {
+  display:flex; justify-content:space-between; align-items:center; padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.report-row:last-child { border-bottom:none; }
+.report-ex { flex:1; font-size:0.95em; }
+.report-time { font-weight:700; font-variant-numeric:tabular-nums; color:var(--green); min-width:60px; text-align:right; }
+.report-bar-bg { height:6px; background:var(--accent2); border-radius:3px; margin-top:4px; }
+.report-bar { height:6px; background:var(--green); border-radius:3px; }
+.history-report-toggle {
+  font-size:0.8em; color:var(--green); background:none; border:1px solid var(--green);
+  padding:3px 8px; border-radius:6px; cursor:pointer; margin-top:4px;
+}
+.history-report { font-size:0.8em; color:var(--muted); margin-top:6px; }
 </style>
 </head>
 <body>
@@ -198,43 +216,43 @@ body {
   <p>Workout of the Day</p>
   <div class="choice-grid">
     <button class="choice-btn" onclick="generateWOD('cardio')">
-      <span class="icon">&#9829;</span> Cardio
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.3l7.8-7.8 1-1.1a5.5 5.5 0 000-7.8z"/></svg></span> Cardio
     </button>
     <button class="choice-btn" onclick="generateWOD('mixed')">
-      <span class="icon">&#9878;</span> Mixed
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span> Mixed
     </button>
     <button class="choice-btn" onclick="generateWOD('strength')">
-      <span class="icon">&#9883;</span> Strength
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M6.5 6.5v11M17.5 6.5v11M2 9v6M22 9v6M6.5 12h11M2 12h4.5M17.5 12H22"/></svg></span> Strength
     </button>
   </div>
   <div class="divider">&mdash; pick a format &mdash;</div>
   <div class="choice-grid">
     <button class="choice-btn" onclick="generateSpecific('chipper')">
-      <span class="icon">&#9776;</span> Chipper
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2"><path d="M4 6h16M4 10h12M4 14h8M4 18h4"/></svg></span> Chipper
     </button>
     <button class="choice-btn" onclick="generateSpecific('partner_chipper')">
-      <span class="icon">&#9776;</span> Partner Chipper
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg></span> Partner Chipper
     </button>
     <button class="choice-btn" onclick="generateSpecific('amrap')">
-      <span class="icon">&#8635;</span> AMRAP
+      <span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg></span> AMRAP
     </button>
   </div>
   <div class="divider">&mdash; body focus &mdash;</div>
   <div class="choice-grid focus-grid">
     <button class="choice-btn focus-btn" onclick="generateBodyFocus('upper')">
-      <span class="icon">&#9757;</span> Arms &amp; Shoulders
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M12 2v8M8 6l4 4 4-4M4 16l4-4M20 16l-4-4M2 20h6M16 20h6"/></svg></span> Arms &amp; Shoulders
     </button>
     <button class="choice-btn focus-btn" onclick="generateBodyFocus('core')">
-      <span class="icon">&#9898;</span> Core
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M12 2v20M4.5 8h15M4.5 16h15"/></svg></span> Core
     </button>
     <button class="choice-btn focus-btn" onclick="generateBodyFocus('legs')">
-      <span class="icon">&#9899;</span> Legs
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M10 4v7l-3 9M14 4v7l3 9M8 11h8"/></svg></span> Legs
     </button>
     <button class="choice-btn focus-btn" onclick="generateBodyFocus('back')">
-      <span class="icon">&#9650;</span> Back &amp; Pull
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><path d="M12 2C8 2 5 6 5 12s3 10 7 10 7-4 7-10S16 2 12 2z"/><path d="M12 2v20"/></svg></span> Back &amp; Pull
     </button>
     <button class="choice-btn focus-btn" onclick="generateBodyFocus('full')">
-      <span class="icon">&#9733;</span> Full Body
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.2"><circle cx="12" cy="4" r="2.5"/><path d="M12 6.5v6M12 12.5l-4 7M12 12.5l4 7M6 10h12"/></svg></span> Full Body
     </button>
   </div>
   <div class="divider">&mdash; or &mdash;</div>
@@ -284,6 +302,17 @@ body {
   </div>
 </div>
 
+<!-- REPORT SCREEN -->
+<div id="report" class="screen">
+  <h2>Workout Report</h2>
+  <div class="report-total" id="report-total"></div>
+  <div class="wod-card" id="report-card"></div>
+  <div class="btn-row">
+    <button class="btn btn-green" onclick="logWorkoutWithReport()">Log as Done</button>
+  </div>
+  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:6px;">Home</button>
+</div>
+
 <!-- HISTORY SCREEN -->
 <div id="history" class="screen">
   <h2>Past Workouts</h2>
@@ -320,7 +349,10 @@ let timerPhaseRemaining = 0;
 let wakeLock = null;
 let audioCtx = null;
 let currentExIdx = 0;
-let currentFocus = null; // body focus key if active
+let currentFocus = null;
+let exerciseTimes = []; // { name, reps, startTime, endTime }
+let timerStartTime = null;
+let lastReport = null;
 
 // ── Screens ──
 function showScreen(id) {
@@ -864,6 +896,12 @@ function startTimer() {
   timerPhaseIdx = 0;
   timerPaused = false;
   currentExIdx = 0;
+  timerStartTime = Date.now();
+  exerciseTimes = currentWOD.exercises.map(ex => ({
+    name: ex.name, reps: ex.reps, startTime: null, endTime: null
+  }));
+  if (exerciseTimes.length) exerciseTimes[0].startTime = Date.now();
+  lastReport = null;
   requestWakeLock();
   showScreen('timer');
   renderExerciseTracker();
@@ -902,16 +940,30 @@ function startPhase() {
 function nextPhase() {
   timerPhaseIdx++;
   if (timerPhaseIdx >= timerPlan.length) {
-    // Done
     doubleBeep(); setTimeout(doubleBeep, 400);
-    document.getElementById('timer-phase').textContent = 'DONE!';
-    document.getElementById('timer-display').textContent = '00:00';
-    document.getElementById('timer-round').textContent = '';
-    document.getElementById('timer-toggle').textContent = 'Pause';
     releaseWakeLock();
+    finishAndShowReport();
     return;
   }
   startPhase();
+}
+
+function finishAndShowReport() {
+  const now = Date.now();
+  // Close any open exercise
+  if (currentExIdx < exerciseTimes.length && !exerciseTimes[currentExIdx].endTime) {
+    exerciseTimes[currentExIdx].endTime = now;
+  }
+  const totalSec = Math.round((now - timerStartTime) / 1000);
+  lastReport = {
+    totalSeconds: totalSec,
+    exercises: exerciseTimes.map(et => ({
+      name: et.name, reps: et.reps,
+      seconds: et.startTime && et.endTime ? Math.round((et.endTime - et.startTime) / 1000) : null
+    }))
+  };
+  renderReport();
+  showScreen('report');
 }
 
 function renderExerciseTracker() {
@@ -952,12 +1004,27 @@ function renderExerciseTracker() {
 
 function nextExercise() {
   shortBeep();
+  const now = Date.now();
+  // Mark current as done
+  if (currentExIdx < exerciseTimes.length) {
+    exerciseTimes[currentExIdx].endTime = now;
+  }
   if (currentExIdx < currentWOD.exercises.length) currentExIdx++;
+  // Start next
+  if (currentExIdx < exerciseTimes.length && !exerciseTimes[currentExIdx].startTime) {
+    exerciseTimes[currentExIdx].startTime = now;
+  }
   renderExerciseTracker();
 }
 
 function prevExercise() {
-  if (currentExIdx > 0) currentExIdx--;
+  if (currentExIdx > 0) {
+    // Reset current start, reopen previous
+    if (currentExIdx < exerciseTimes.length) exerciseTimes[currentExIdx].startTime = null;
+    currentExIdx--;
+    exerciseTimes[currentExIdx].endTime = null;
+    exerciseTimes[currentExIdx].startTime = Date.now();
+  }
   renderExerciseTracker();
 }
 
@@ -985,7 +1052,39 @@ function toggleTimer() {
 function stopTimer() {
   clearInterval(timerInterval);
   releaseWakeLock();
-  showScreen('confirmed');
+  finishAndShowReport();
+}
+
+// ── Report ──
+function renderReport() {
+  if (!lastReport) return;
+  document.getElementById('report-total').textContent = 'Total: ' + fmtTime(lastReport.totalSeconds);
+  const maxSec = Math.max(...lastReport.exercises.map(e => e.seconds || 0), 1);
+  let html = '';
+  lastReport.exercises.forEach(ex => {
+    const sec = ex.seconds;
+    const pct = sec ? Math.round((sec / maxSec) * 100) : 0;
+    html += `<div class="report-row">
+      <div class="report-ex">${ex.reps} ${ex.name}
+        <div class="report-bar-bg"><div class="report-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="report-time">${sec !== null ? fmtTime(sec) : '--'}</div>
+    </div>`;
+  });
+  document.getElementById('report-card').innerHTML = html;
+}
+
+function logWorkoutWithReport() {
+  const h = getHistory();
+  h.unshift({
+    date: new Date().toISOString(),
+    wod: JSON.parse(JSON.stringify(currentWOD)),
+    report: lastReport ? JSON.parse(JSON.stringify(lastReport)) : null
+  });
+  if (h.length > 100) h.length = 100;
+  saveHistory(h);
+  alert('Workout logged!');
+  showScreen('home');
 }
 
 // ── History (localStorage) ──
@@ -1018,13 +1117,24 @@ function showHistory() {
     const d = new Date(entry.date);
     const dateStr = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
     const exSummary = entry.wod.exercises.map(e => `${e.reps} ${e.name}`).join(' | ');
+    const rpt = entry.report;
+    const totalStr = rpt ? ` &mdash; ${fmtTime(rpt.totalSeconds)}` : '';
+    let reportHtml = '';
+    if (rpt && rpt.exercises) {
+      const lines = rpt.exercises.map(e =>
+        `${e.reps} ${e.name}: ${e.seconds !== null ? fmtTime(e.seconds) : '--'}`
+      ).join('<br>');
+      reportHtml = `<button class="history-report-toggle" onclick="event.stopPropagation();this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Report</button>
+        <div class="history-report" style="display:none">${lines}</div>`;
+    }
     return `<div class="history-item" style="margin-bottom:10px;">
       <button class="history-delete" onclick="event.stopPropagation();deleteHistoryWOD(${i})" title="Delete">&#10005;</button>
       <div onclick="loadHistoryWOD(${i})">
-        <div class="history-date">${dateStr}</div>
+        <div class="history-date">${dateStr}${totalStr}</div>
         <div class="history-wod-name">${entry.wod.formatName}</div>
         <div class="history-type">${entry.wod.type}</div>
         <div class="history-exercises">${exSummary}</div>
+        ${reportHtml}
       </div>
     </div>`;
   }).join('');
