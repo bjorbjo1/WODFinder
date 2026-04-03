@@ -113,9 +113,18 @@ body {
 .btn-outline { background:transparent; border:2px solid var(--accent2); color:var(--text); }
 .btn-green { background:var(--green); color:#111; }
 .btn-small { padding:10px 14px; font-size:0.9em; }
+/* Back button - top left */
+.back-bar { width:100%; display:flex; align-items:center; margin-bottom:4px; }
+.back-btn {
+  background:none; border:none; color:var(--muted); font-size:0.95em;
+  cursor:pointer; display:flex; align-items:center; gap:4px; padding:6px 2px;
+  transition:color .15s;
+}
+.back-btn:active { color:var(--text); }
+.back-btn svg { flex-shrink:0; }
 
 /* Timer screen */
-#timer { justify-content:center; align-items:center; gap:12px; }
+#timer { justify-content:center; align-items:center; gap:12px; position:relative; }
 .timer-display {
   font-size:min(22vw, 30vh); font-weight:700; font-variant-numeric:tabular-nums;
   color:var(--text); text-align:center; line-height:1;
@@ -140,14 +149,22 @@ body {
 .timer-ex-next-label { font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
 .timer-ex-finished { font-size:1.3em; font-weight:700; color:var(--green); padding:8px 0; }
 
-/* Landscape timer — fill the screen */
+/* Landscape timer — fill the screen, exercises on the side */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:4px; min-height:100vh; flex-direction:row; flex-wrap:wrap; }
-  #timer .timer-exercise-tracker { display:none; }
-  #timer .timer-ex-controls { display:none; }
-  #timer .timer-display { font-size:min(40vw, 55vh); line-height:1; width:100%; }
-  #timer .timer-phase { font-size:min(6vw, 8vh); width:100%; }
-  #timer .timer-round { font-size:min(4vw, 5vh); width:100%; }
+  #timer { padding:10px; gap:4px; min-height:100vh; flex-direction:row; flex-wrap:wrap; align-content:center; }
+  #timer .timer-exercise-tracker {
+    position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    width:auto; max-width:30vw; text-align:left; font-size:0.8em;
+  }
+  #timer .timer-exercise-tracker .timer-ex-current { font-size:1em; padding:4px 8px; }
+  #timer .timer-exercise-tracker .timer-ex-done { font-size:0.75em; }
+  #timer .timer-exercise-tracker .timer-ex-next { font-size:0.8em; }
+  #timer .timer-exercise-tracker .timer-ex-next-label { font-size:0.65em; }
+  #timer .timer-ex-controls { position:absolute; right:10px; top:50%; transform:translateY(-50%); flex-direction:column; gap:8px; }
+  #timer .timer-ex-controls .btn { padding:8px 14px; font-size:min(2.5vw, 3vh); }
+  #timer .timer-display { font-size:min(35vw, 50vh); line-height:1; width:100%; }
+  #timer .timer-phase { font-size:min(5vw, 7vh); width:100%; }
+  #timer .timer-round { font-size:min(3.5vw, 4.5vh); width:100%; }
   #timer .timer-controls { gap:16px; }
   #timer .timer-controls .btn { padding:10px 28px; font-size:min(3.5vw, 4vh); }
 }
@@ -265,6 +282,7 @@ body {
 
 <!-- BUILDER SCREEN -->
 <div id="builder" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button></div>
   <h2>Build Your Workout</h2>
 
   <!-- Step 1: Focus -->
@@ -322,11 +340,11 @@ body {
   </div>
 
   <button class="generate-btn" id="generate-btn" onclick="generateFromBuilder()">Generate Workout</button>
-  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="max-width:380px;width:100%;margin-top:4px;">Back</button>
 </div>
 
 <!-- WOD SCREEN -->
 <div id="wod" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Home</button></div>
   <h2 id="wod-title">Your WOD</h2>
   <div class="wod-type-label" id="wod-type-label"></div>
   <div class="wod-card" id="wod-card"></div>
@@ -334,11 +352,11 @@ body {
     <button class="btn btn-outline" onclick="reroll()">&#8635; New WOD</button>
     <button class="btn btn-green" onclick="confirmWOD()">Confirm</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:6px;">Back</button>
 </div>
 
 <!-- CONFIRMED SCREEN (with timer launch) -->
-<div id="confirmed" class="screen" style="justify-content:center;align-items:center;gap:20px;">
+<div id="confirmed" class="screen" style="align-items:center;gap:20px;">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Home</button></div>
   <h2 style="color:var(--green);">Let's Go!</h2>
   <div class="wod-card" id="confirmed-card" style="width:100%;"></div>
   <div class="btn-row" style="width:100%;">
@@ -347,7 +365,6 @@ body {
   <div class="btn-row" style="width:100%;">
     <button class="btn btn-green" onclick="logWorkout()">Log as Done</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="width:100%;">Home</button>
 </div>
 
 <!-- TIMER SCREEN -->
@@ -368,20 +385,20 @@ body {
 
 <!-- REPORT SCREEN -->
 <div id="report" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Home</button></div>
   <h2>Workout Report</h2>
   <div class="report-total" id="report-total"></div>
   <div class="wod-card" id="report-card"></div>
   <div class="btn-row">
     <button class="btn btn-green" onclick="logWorkoutWithReport()">Log as Done</button>
   </div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:6px;">Home</button>
 </div>
 
 <!-- HISTORY SCREEN -->
 <div id="history" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button></div>
   <h2>Past Workouts</h2>
   <div id="history-list"></div>
-  <button class="btn btn-outline btn-small" onclick="showScreen('start')" style="margin-top:auto;padding-top:14px;">Back</button>
 </div>
 
 <!-- EDIT MODAL -->
@@ -525,9 +542,10 @@ let wakeLock = null;
 let audioCtx = null;
 let currentExIdx = 0;
 let currentFocus = null;
-let exerciseTimes = []; // { name, reps, startTime, endTime }
+let exerciseTimes = [];
 let timerStartTime = null;
 let lastReport = null;
+let emomRoundDone = 0;
 
 // ── Screens ──
 function showScreen(id) {
@@ -1077,6 +1095,7 @@ function startTimer() {
   timerPhaseIdx = 0;
   timerPaused = false;
   currentExIdx = 0;
+  emomRoundDone = 0;
   timerStartTime = Date.now();
   exerciseTimes = currentWOD.exercises.map(ex => ({
     name: ex.name, reps: ex.reps, startTime: null, endTime: null
@@ -1147,6 +1166,10 @@ function finishAndShowReport() {
   showScreen('report');
 }
 
+function isEmomMode() {
+  return currentWOD && currentWOD.timerConfig && currentWOD.timerConfig.type === 'emom';
+}
+
 function renderExerciseTracker() {
   const exs = currentWOD.exercises;
   const el = document.getElementById('timer-exercises');
@@ -1155,16 +1178,33 @@ function renderExerciseTracker() {
   controls.style.display = 'flex';
 
   let html = '';
-  // Show last completed exercise (struck through)
+
+  if (isEmomMode()) {
+    // EMOM: show all exercises for this minute
+    const phase = timerPlan && timerPlan[timerPhaseIdx];
+    const roundNum = phase ? phase.round : (emomRoundDone + 1);
+    const totalRounds = phase ? phase.totalRounds : (currentWOD.timerConfig.totalRounds || '?');
+    html += `<div class="timer-ex-next-label">This minute</div>`;
+    exs.forEach(ex => {
+      html += `<div class="timer-ex-current" style="margin-bottom:4px;">${ex.reps} ${ex.name}</div>`;
+    });
+    html += `<div style="color:var(--muted);font-size:0.75em;margin-top:6px;">Round ${roundNum} / ${totalRounds}</div>`;
+    el.innerHTML = html;
+    // In EMOM, prev/next not used for individual exercises
+    document.getElementById('ex-prev-btn').style.display = 'none';
+    document.getElementById('ex-next-btn').textContent = emomRoundDone >= (currentWOD.timerConfig.totalRounds || 0) ? 'Done' : 'Round Done';
+    return;
+  }
+
+  // Normal mode: one exercise at a time
+  document.getElementById('ex-prev-btn').style.display = '';
   if (currentExIdx > 0) {
     const prev = exs[currentExIdx - 1];
     html += `<div class="timer-ex-done">${prev.reps} ${prev.name}</div>`;
   }
   if (currentExIdx < exs.length) {
-    // Current exercise
     const cur = exs[currentExIdx];
     html += `<div class="timer-ex-current">${cur.reps} ${cur.name}</div>`;
-    // Next up
     if (currentExIdx + 1 < exs.length) {
       const nxt = exs[currentExIdx + 1];
       html += `<div class="timer-ex-next-label">Up next</div>`;
@@ -1173,11 +1213,9 @@ function renderExerciseTracker() {
   } else {
     html += `<div class="timer-ex-finished">All exercises done!</div>`;
   }
-  // Progress
   html += `<div style="color:var(--muted);font-size:0.75em;margin-top:6px;">${Math.min(currentExIdx + 1, exs.length)} / ${exs.length}</div>`;
   el.innerHTML = html;
 
-  // Button states
   document.getElementById('ex-prev-btn').disabled = currentExIdx <= 0;
   document.getElementById('ex-prev-btn').style.opacity = currentExIdx <= 0 ? '0.3' : '1';
   document.getElementById('ex-next-btn').textContent = currentExIdx >= exs.length - 1 ? 'Done' : 'Next';
@@ -1186,12 +1224,19 @@ function renderExerciseTracker() {
 function nextExercise() {
   shortBeep();
   const now = Date.now();
-  // Mark current as done
+
+  if (isEmomMode()) {
+    // EMOM: "Round Done" confirms you finished all exercises for this minute
+    emomRoundDone++;
+    renderExerciseTracker();
+    return;
+  }
+
+  // Normal mode: advance one exercise
   if (currentExIdx < exerciseTimes.length) {
     exerciseTimes[currentExIdx].endTime = now;
   }
   if (currentExIdx < currentWOD.exercises.length) currentExIdx++;
-  // Start next
   if (currentExIdx < exerciseTimes.length && !exerciseTimes[currentExIdx].startTime) {
     exerciseTimes[currentExIdx].startTime = now;
   }
@@ -1215,6 +1260,8 @@ function renderTimer() {
   document.getElementById('timer-phase').textContent = phase.label;
   document.getElementById('timer-round').textContent =
     phase.round ? `Round ${phase.round}/${phase.totalRounds}` : '';
+  // Keep exercise tracker in sync (esp. EMOM round display)
+  if (isEmomMode()) renderExerciseTracker();
 }
 
 function toggleTimer() {
