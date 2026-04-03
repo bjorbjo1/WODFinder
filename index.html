@@ -45,6 +45,8 @@ body {
 }
 .choice-btn:active { background:var(--accent2); transform:scale(0.97); }
 .choice-btn .icon { font-size:1.6em; }
+.focus-grid { display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; }
+.focus-btn { flex:1 1 45%; padding:14px; font-size:1em; }
 .divider { color:var(--muted); text-align:center; font-size:0.85em; margin:6px 0; }
 
 /* WOD screen */
@@ -217,6 +219,24 @@ body {
       <span class="icon">&#8635;</span> AMRAP
     </button>
   </div>
+  <div class="divider">&mdash; body focus &mdash;</div>
+  <div class="choice-grid focus-grid">
+    <button class="choice-btn focus-btn" onclick="generateBodyFocus('upper')">
+      <span class="icon">&#9757;</span> Arms &amp; Shoulders
+    </button>
+    <button class="choice-btn focus-btn" onclick="generateBodyFocus('core')">
+      <span class="icon">&#9898;</span> Core
+    </button>
+    <button class="choice-btn focus-btn" onclick="generateBodyFocus('legs')">
+      <span class="icon">&#9899;</span> Legs
+    </button>
+    <button class="choice-btn focus-btn" onclick="generateBodyFocus('back')">
+      <span class="icon">&#9650;</span> Back &amp; Pull
+    </button>
+    <button class="choice-btn focus-btn" onclick="generateBodyFocus('full')">
+      <span class="icon">&#9733;</span> Full Body
+    </button>
+  </div>
   <div class="divider">&mdash; or &mdash;</div>
   <button class="btn btn-outline btn-small" onclick="showHistory()" style="max-width:340px;width:100%;">
     Redo a Past Workout
@@ -300,6 +320,7 @@ let timerPhaseRemaining = 0;
 let wakeLock = null;
 let audioCtx = null;
 let currentExIdx = 0;
+let currentFocus = null; // body focus key if active
 
 // ── Screens ──
 function showScreen(id) {
@@ -463,9 +484,94 @@ function pickNAll(n) {
   return shuffle([...new Set(all)]).slice(0, n);
 }
 
+// Body focus exercise pools
+const bodyFocusExercises = {
+  upper: [
+    'Overhead Press', 'Push Press', 'Strict Press', 'Bench Press', 'Floor Press',
+    'Push-Ups', 'Handstand Push-Ups', 'Ring Dips', 'Dumbbell Snatch',
+    'Dumbbell Clean & Jerk', 'Push Jerk', 'Kettlebell Swings', 'SDHP',
+    'Turkish Get-Ups', 'Muscle-Ups', 'Barbell Row'
+  ],
+  core: [
+    'Sit-Ups', 'V-Ups', 'Toes-to-Bar', 'Plank Hold (sec)', 'Mountain Climbers',
+    'Turkish Get-Ups', 'Wall Balls', 'Burpees', 'Bear Crawl (m)',
+    'Kettlebell Swings', 'High Knees', 'Goblet Squats', 'Thrusters'
+  ],
+  legs: [
+    'Back Squat', 'Front Squat', 'Deadlift', 'Sumo Deadlift', 'Romanian Deadlift',
+    'Lunges', 'Goblet Squats', 'Pistol Squats', 'Box Jumps', 'Box Step-Ups',
+    'Wall Balls', 'Thrusters', 'Thruster', 'Overhead Squat',
+    'Tuck Jumps', 'Lateral Jumps', 'Running (m)'
+  ],
+  back: [
+    'Deadlift', 'Romanian Deadlift', 'Barbell Row', 'Pull-Ups', 'Ring Rows',
+    'Rope Climbs', 'Muscle-Ups', 'Power Clean', 'Hang Clean', 'Hang Power Clean',
+    'Snatch', 'Clean & Jerk', 'Kettlebell Swings', 'SDHP',
+    'Sumo Deadlift', 'Rowing (Cal)', 'Toes-to-Bar'
+  ],
+  full: [
+    'Thrusters', 'Burpees', 'Wall Balls', 'Kettlebell Swings', 'Clean & Jerk',
+    'Snatch', 'Turkish Get-Ups', 'Dumbbell Clean & Jerk', 'Power Clean',
+    'Box Jumps', 'Pull-Ups', 'Push-Ups', 'Toes-to-Bar', 'Lunges',
+    'Assault Bike (Cal)', 'Rowing (Cal)', 'Running (m)', 'Farmer Carry (m)',
+    'Hang Power Clean', 'Sit-Ups', 'Goblet Squats', 'Ring Dips'
+  ]
+};
+
+function pickNFocus(focus, n) {
+  const pool = shuffle(bodyFocusExercises[focus]);
+  return pool.slice(0, Math.min(n, pool.length));
+}
+
+function generateBodyFocus(focus) {
+  currentType = 'mixed';
+  currentFocus = focus;
+  const focusLabels = { upper:'Arms & Shoulders', core:'Core', legs:'Legs', back:'Back & Pull', full:'Full Body' };
+
+  // Pick a random format
+  const formats = ['amrap','rounds','emom'];
+  const fmt = formats[Math.floor(Math.random()*formats.length)];
+
+  const exNames = pickNFocus(focus, fmt === 'emom' ? rand(3,4) : rand(4,6));
+  const exList = exNames.map(name => ({
+    name, reps: defaultReps[name] || '10'
+  }));
+
+  if (fmt === 'amrap') {
+    const mins = rand(16,22);
+    currentWOD = {
+      type:'mixed', formatName:`${focusLabels[focus]} AMRAP`,
+      description:`AMRAP ${mins} min — ${focusLabels[focus]} focus`,
+      exercises: exList, sets: null,
+      timerConfig: { type:'amrap', duration: mins*60 }
+    };
+  } else if (fmt === 'rounds') {
+    const rounds = rand(3,5);
+    currentWOD = {
+      type:'mixed', formatName:`${focusLabels[focus]} Rounds`,
+      description:`${rounds} Rounds For Time — ${focusLabels[focus]} focus`,
+      exercises: exList, sets: null, rounds,
+      timerConfig: { type:'fortime', cap:40 }
+    };
+  } else {
+    const totalMin = exList.length * rand(3,4);
+    currentWOD = {
+      type:'mixed', formatName:`${focusLabels[focus]} EMOM`,
+      description:`EMOM ${totalMin} min — ${focusLabels[focus]} focus`,
+      exercises: exList.map(ex => ({ ...ex, reps: String(Math.max(1, Math.round(parseInt(ex.reps)*0.5))) })),
+      sets: null,
+      timerConfig: { type:'emom', totalRounds: totalMin }
+    };
+  }
+
+  renderWOD();
+  showScreen('wod');
+}
+
 // Specific format generators (Chipper, Partner Chipper, AMRAP from menu)
 function generateSpecific(format) {
-  currentType = 'mixed'; // use mixed pool for swaps/adds
+  currentType = 'mixed';
+  currentFocus = null;
   if (format === 'chipper') {
     const exNames = pickNAll(rand(8,12));
     const exList = exNames.map(name => ({
@@ -505,6 +611,7 @@ function generateSpecific(format) {
 
 function generateWOD(type) {
   currentType = type;
+  currentFocus = null;
   const formats = wodFormats[type];
   const fmt = formats[Math.floor(Math.random()*formats.length)];
 
@@ -612,8 +719,12 @@ function renderWOD() {
 
 function reroll() { generateWOD(currentType); }
 
+function getExercisePool() {
+  return currentFocus ? bodyFocusExercises[currentFocus] : exercises[currentType];
+}
+
 function swapExercise(idx) {
-  const pool = exercises[currentType];
+  const pool = getExercisePool();
   const used = new Set(currentWOD.exercises.map(e=>e.name));
   const available = pool.filter(n=>!used.has(n));
   if (!available.length) return;
@@ -624,13 +735,13 @@ function swapExercise(idx) {
 }
 
 function removeExercise(idx) {
-  if (currentWOD.exercises.length <= 1) return; // keep at least 1
+  if (currentWOD.exercises.length <= 1) return;
   currentWOD.exercises.splice(idx, 1);
   renderWOD();
 }
 
 function addRandomExercise() {
-  const pool = exercises[currentType];
+  const pool = getExercisePool();
   const used = new Set(currentWOD.exercises.map(e=>e.name));
   const available = pool.filter(n=>!used.has(n));
   if (!available.length) return;
