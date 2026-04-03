@@ -149,24 +149,30 @@ body {
 .timer-ex-next-label { font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
 .timer-ex-finished { font-size:1.3em; font-weight:700; color:var(--green); padding:8px 0; }
 
-/* Landscape timer — fill the screen, exercises on the side */
+/* Landscape timer — exercises on top, controls on sides */
 @media (orientation: landscape) {
-  #timer { padding:10px; gap:4px; min-height:100vh; flex-direction:row; flex-wrap:wrap; align-content:center; }
+  #timer { padding:10px; gap:2px; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; position:relative; }
   #timer .timer-exercise-tracker {
-    position:absolute; left:10px; top:50%; transform:translateY(-50%);
-    width:auto; max-width:30vw; text-align:left; font-size:0.8em;
+    position:absolute; top:6px; left:50%; transform:translateX(-50%);
+    width:90vw; max-width:none; text-align:center; font-size:0.75em;
+    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:nowrap;
   }
-  #timer .timer-exercise-tracker .timer-ex-current { font-size:1em; padding:4px 8px; }
-  #timer .timer-exercise-tracker .timer-ex-done { font-size:0.75em; }
-  #timer .timer-exercise-tracker .timer-ex-next { font-size:0.8em; }
-  #timer .timer-exercise-tracker .timer-ex-next-label { font-size:0.65em; }
-  #timer .timer-ex-controls { position:absolute; right:10px; top:50%; transform:translateY(-50%); flex-direction:column; gap:8px; }
-  #timer .timer-ex-controls .btn { padding:8px 14px; font-size:min(2.5vw, 3vh); }
-  #timer .timer-display { font-size:min(35vw, 50vh); line-height:1; width:100%; }
-  #timer .timer-phase { font-size:min(5vw, 7vh); width:100%; }
-  #timer .timer-round { font-size:min(3.5vw, 4.5vh); width:100%; }
+  #timer .timer-exercise-tracker .timer-ex-current { font-size:0.95em; padding:3px 10px; margin:0; white-space:nowrap; }
+  #timer .timer-exercise-tracker .timer-ex-done { font-size:0.7em; white-space:nowrap; }
+  #timer .timer-exercise-tracker .timer-ex-next { font-size:0.75em; white-space:nowrap; }
+  #timer .timer-exercise-tracker .timer-ex-next-label { font-size:0.6em; margin:0; white-space:nowrap; }
+  #timer .timer-ex-controls {
+    position:absolute; top:6px; width:100%; display:flex; justify-content:space-between;
+    padding:0 10px; flex-direction:row; gap:0;
+  }
+  #timer .timer-ex-controls .btn { padding:6px 16px; font-size:min(2.5vw, 3vh); }
+  #timer #ex-prev-btn { order:0; }
+  #timer #ex-next-btn { order:1; }
+  #timer .timer-display { font-size:min(30vw, 42vh); line-height:1; width:100%; margin-top:min(4vh, 24px); }
+  #timer .timer-phase { font-size:min(4.5vw, 6vh); width:100%; }
+  #timer .timer-round { font-size:min(3vw, 4vh); width:100%; }
   #timer .timer-controls { gap:16px; }
-  #timer .timer-controls .btn { padding:10px 28px; font-size:min(3.5vw, 4vh); }
+  #timer .timer-controls .btn { padding:8px 24px; font-size:min(3vw, 3.5vh); }
 }
 
 /* Exercise equipment tag */
