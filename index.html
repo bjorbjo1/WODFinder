@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WOD">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>WOD Finder</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg: #1a1a2e;
+  --card: #16213e;
+  --accent: #e94560;
+  --accent2: #0f3460;
+  --text: #eee;
+  --muted: #888;
+  --green: #4ecca3;
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body { height:100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  overflow-x: hidden;
+}
+.screen { display:none; flex-direction:column; min-height:calc(100vh - var(--safe-top)); padding:20px; }
+.screen.active { display:flex; }
+
+/* Home screen */
+#home { justify-content:center; align-items:center; gap:20px; }
+#home h1 { font-size:2.2em; letter-spacing:2px; color:var(--accent); }
+#home p { color:var(--muted); font-size:0.95em; margin-bottom:10px; }
+.choice-grid { display:flex; flex-direction:column; gap:14px; width:100%; max-width:340px; }
+.choice-btn {
+  background: var(--card); border:2px solid var(--accent2); color:var(--text);
+  font-size:1.15em; padding:18px; border-radius:14px; cursor:pointer;
+  display:flex; align-items:center; gap:12px; transition:all .15s;
+}
+.choice-btn:active { background:var(--accent2); transform:scale(0.97); }
+.choice-btn .icon { font-size:1.6em; }
+.divider { color:var(--muted); text-align:center; font-size:0.85em; margin:6px 0; }
+
+/* WOD screen */
+#wod { gap:14px; }
+#wod h2 { color:var(--accent); font-size:1.4em; text-align:center; }
+.wod-type-label { text-align:center; color:var(--muted); font-size:0.85em; text-transform:uppercase; letter-spacing:1px; }
+.wod-card {
+  background:var(--card); border-radius:14px; padding:16px; margin-top:4px;
+}
+.wod-name { font-size:1.1em; font-weight:700; color:var(--green); margin-bottom:8px; }
+.wod-format { font-size:0.85em; color:var(--muted); margin-bottom:10px; }
+.exercise-row {
+  display:flex; align-items:center; gap:8px; padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.exercise-row:last-child { border-bottom:none; }
+.exercise-text { flex:1; font-size:0.95em; }
+.exercise-actions { display:flex; gap:6px; }
+.ex-btn {
+  background:var(--accent2); border:none; color:var(--text); width:32px; height:32px;
+  border-radius:8px; font-size:0.85em; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.ex-btn:active { opacity:0.7; }
+.btn-row { display:flex; gap:10px; margin-top:auto; padding-top:14px; }
+.btn {
+  flex:1; padding:15px; border:none; border-radius:12px; font-size:1em;
+  font-weight:600; cursor:pointer; transition:all .15s;
+}
+.btn:active { transform:scale(0.97); }
+.btn-accent { background:var(--accent); color:#fff; }
+.btn-outline { background:transparent; border:2px solid var(--accent2); color:var(--text); }
+.btn-green { background:var(--green); color:#111; }
+.btn-small { padding:10px 14px; font-size:0.9em; }
+
+/* Timer screen */
+#timer { justify-content:center; align-items:center; gap:20px; }
+.timer-display {
+  font-size:4em; font-weight:700; font-variant-numeric:tabular-nums;
+  color:var(--text); text-align:center;
+}
+.timer-phase { font-size:1.2em; color:var(--green); text-align:center; }
+.timer-round { color:var(--muted); font-size:1em; text-align:center; }
+.timer-controls { display:flex; gap:12px; }
+
+/* Edit modal */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  z-index:100; justify-content:center; align-items:flex-end;
+}
+.modal-overlay.active { display:flex; }
+.modal {
+  background:var(--card); border-radius:18px 18px 0 0; padding:24px 20px;
+  padding-bottom:calc(20px + var(--safe-bottom)); width:100%; max-width:400px;
+  max-height:70vh; overflow-y:auto;
+}
+.modal h3 { margin-bottom:14px; color:var(--accent); }
+.modal input, .modal select {
+  width:100%; padding:12px; background:var(--bg); border:1px solid var(--accent2);
+  color:var(--text); border-radius:10px; font-size:1em; margin-bottom:10px;
+  -webkit-appearance:none;
+}
+.modal .btn { margin-top:6px; }
+
+/* History screen */
+#history { gap:14px; }
+#history h2 { color:var(--accent); font-size:1.4em; text-align:center; }
+.history-empty { text-align:center; color:var(--muted); margin-top:40px; }
+.history-item {
+  background:var(--card); border-radius:12px; padding:14px; cursor:pointer;
+  transition:all .15s;
+}
+.history-item:active { transform:scale(0.98); }
+.history-date { font-size:0.8em; color:var(--muted); }
+.history-wod-name { font-size:1em; font-weight:600; color:var(--green); margin:4px 0; }
+.history-type { font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1px; }
+.history-exercises { font-size:0.85em; color:var(--muted); margin-top:6px; }
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen active">
+  <h1>WOD</h1>
+  <p>Workout of the Day</p>
+  <div class="choice-grid">
+    <button class="choice-btn" onclick="generateWOD('cardio')">
+      <span class="icon">&#9829;</span> Cardio
+    </button>
+    <button class="choice-btn" onclick="generateWOD('mixed')">
+      <span class="icon">&#9878;</span> Mixed
+    </button>
+    <button class="choice-btn" onclick="generateWOD('strength')">
+      <span class="icon">&#9883;</span> Strength
+    </button>
+  </div>
+  <div class="divider">&mdash; or &mdash;</div>
+  <button class="btn btn-outline btn-small" onclick="showHistory()" style="max-width:340px;width:100%;">
+    Redo a Past Workout
+  </button>
+</div>
+
+<!-- WOD SCREEN -->
+<div id="wod" class="screen">
+  <h2 id="wod-title">Your WOD</h2>
+  <div class="wod-type-label" id="wod-type-label"></div>
+  <div class="wod-card" id="wod-card"></div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="reroll()">&#8635; New WOD</button>
+    <button class="btn btn-green" onclick="confirmWOD()">Confirm</button>
+  </div>
+  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:6px;">Back</button>
+</div>
+
+<!-- CONFIRMED SCREEN (with timer launch) -->
+<div id="confirmed" class="screen" style="justify-content:center;align-items:center;gap:20px;">
+  <h2 style="color:var(--green);">Let's Go!</h2>
+  <div class="wod-card" id="confirmed-card" style="width:100%;"></div>
+  <div class="btn-row" style="width:100%;">
+    <button class="btn btn-accent" id="start-timer-btn" onclick="startTimer()">Start Timer</button>
+  </div>
+  <div class="btn-row" style="width:100%;">
+    <button class="btn btn-green" onclick="logWorkout()">Log as Done</button>
+  </div>
+  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="width:100%;">Home</button>
+</div>
+
+<!-- TIMER SCREEN -->
+<div id="timer" class="screen">
+  <div class="timer-phase" id="timer-phase"></div>
+  <div class="timer-display" id="timer-display">00:00</div>
+  <div class="timer-round" id="timer-round"></div>
+  <div class="timer-controls">
+    <button class="btn btn-accent" id="timer-toggle" onclick="toggleTimer()">Pause</button>
+    <button class="btn btn-outline" onclick="stopTimer()">Stop</button>
+  </div>
+</div>
+
+<!-- HISTORY SCREEN -->
+<div id="history" class="screen">
+  <h2>Past Workouts</h2>
+  <div id="history-list"></div>
+  <button class="btn btn-outline btn-small" onclick="showScreen('home')" style="margin-top:auto;padding-top:14px;">Back</button>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h3>Edit Exercise</h3>
+    <label style="color:var(--muted);font-size:.85em;">Exercise name</label>
+    <input id="edit-name" type="text" placeholder="Exercise name">
+    <label style="color:var(--muted);font-size:.85em;">Reps / Duration</label>
+    <input id="edit-reps" type="text" placeholder="e.g. 15 reps, 400m, 1:00">
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let currentType = '';
+let currentWOD = null;
+let editIndex = -1;
+let timerInterval = null;
+let timerSeconds = 0;
+let timerPaused = false;
+let timerPlan = null;
+let timerPhaseIdx = 0;
+let timerPhaseRemaining = 0;
+let wakeLock = null;
+let audioCtx = null;
+
+// ── Screens ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Audio (Web Audio API — works on iOS) ──
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq, duration, vol) {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.frequency.value = freq;
+  gain.gain.value = vol || 0.3;
+  osc.start(); osc.stop(ctx.currentTime + duration);
+}
+function shortBeep() { beep(880, 0.12, 0.25); }
+function longBeep() { beep(660, 0.5, 0.4); }
+function doubleBeep() { beep(880, 0.12, 0.3); setTimeout(() => beep(1100, 0.2, 0.35), 180); }
+
+// ── Wake Lock ──
+async function requestWakeLock() {
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+}
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+}
+
+// ── WOD Database ──
+const exercises = {
+  cardio: [
+    'Box Jumps', 'Double Unders', 'Burpees', 'Rowing (Cal)', 'Assault Bike (Cal)',
+    'Running (m)', 'Jump Rope Singles', 'Mountain Climbers', 'High Knees',
+    'Shuttle Runs', 'Ski Erg (Cal)', 'Burpee Box Jump Overs', 'Lateral Jumps',
+    'Tuck Jumps', 'Bear Crawl (m)'
+  ],
+  strength: [
+    'Back Squat', 'Front Squat', 'Deadlift', 'Bench Press', 'Overhead Press',
+    'Power Clean', 'Clean & Jerk', 'Snatch', 'Push Press', 'Sumo Deadlift',
+    'Romanian Deadlift', 'Barbell Row', 'Floor Press', 'Thruster',
+    'Overhead Squat', 'Hang Clean', 'Push Jerk', 'Strict Press'
+  ],
+  mixed: [
+    'Wall Balls', 'Kettlebell Swings', 'Pull-Ups', 'Push-Ups', 'Thrusters',
+    'Toes-to-Bar', 'Dumbbell Snatch', 'Lunges', 'Ring Rows', 'Sit-Ups',
+    'Goblet Squats', 'Dumbbell Clean & Jerk', 'Hang Power Clean', 'SDHP',
+    'Box Step-Ups', 'Handstand Push-Ups', 'Muscle-Ups', 'Rope Climbs',
+    'Pistol Squats', 'Turkish Get-Ups', 'Farmer Carry (m)', 'V-Ups',
+    'Plank Hold (sec)', 'Ring Dips', 'Calorie Row', 'Assault Bike (Cal)'
+  ]
+};
+
+const defaultReps = {
+  'Box Jumps':'20','Double Unders':'50','Burpees':'10','Rowing (Cal)':'20',
+  'Assault Bike (Cal)':'15','Running (m)':'400','Jump Rope Singles':'100',
+  'Mountain Climbers':'30','High Knees':'40','Shuttle Runs':'10',
+  'Ski Erg (Cal)':'20','Burpee Box Jump Overs':'8','Lateral Jumps':'20',
+  'Tuck Jumps':'15','Bear Crawl (m)':'20',
+  'Back Squat':'5','Front Squat':'5','Deadlift':'5','Bench Press':'5',
+  'Overhead Press':'5','Power Clean':'3','Clean & Jerk':'2','Snatch':'2',
+  'Push Press':'5','Sumo Deadlift':'5','Romanian Deadlift':'8',
+  'Barbell Row':'8','Floor Press':'8','Thruster':'5','Overhead Squat':'3',
+  'Hang Clean':'3','Push Jerk':'3','Strict Press':'5',
+  'Wall Balls':'20','Kettlebell Swings':'15','Pull-Ups':'10','Push-Ups':'15',
+  'Thrusters':'12','Toes-to-Bar':'10','Dumbbell Snatch':'10','Lunges':'16',
+  'Ring Rows':'12','Sit-Ups':'20','Goblet Squats':'15',
+  'Dumbbell Clean & Jerk':'8','Hang Power Clean':'8','SDHP':'12',
+  'Box Step-Ups':'16','Handstand Push-Ups':'5','Muscle-Ups':'3',
+  'Rope Climbs':'1','Pistol Squats':'8','Turkish Get-Ups':'4',
+  'Farmer Carry (m)':'50','V-Ups':'15','Plank Hold (sec)':'45',
+  'Ring Dips':'8','Calorie Row':'15'
+};
+
+// WOD format templates
+const wodFormats = {
+  cardio: [
+    { name:'Chipper', desc:'For Time — work through all exercises once',
+      pickExercises: () => pickN('cardio', rand(5,7)),
+      repsMultiplier: 1.5,
+      timer: { type:'fortime', cap:40 }
+    },
+    { name:'AMRAP', desc:fmt => `AMRAP ${fmt.minutes} min`,
+      minutes: () => rand(16,25),
+      pickExercises: () => pickN('cardio', rand(3,5)),
+      timer: { type:'amrap' }
+    },
+    { name:'Intervals', desc:'Every minute on the minute',
+      pickExercises: () => pickN('cardio', rand(2,4)),
+      repsMultiplier: 0.6,
+      timer: { type:'emom', rounds: () => rand(8,12) }
+    },
+    { name:'Tabata Mashup', desc:'8 rounds: 20s work / 10s rest per station',
+      pickExercises: () => pickN('cardio', rand(3,5)),
+      useTabataReps: true,
+      timer: { type:'tabata', stations: null }
+    }
+  ],
+  mixed: [
+    { name:'AMRAP', desc:fmt => `AMRAP ${fmt.minutes} min`,
+      minutes: () => rand(18,25),
+      pickExercises: () => pickN('mixed', rand(4,6)),
+      timer: { type:'amrap' }
+    },
+    { name:'Rounds For Time', desc:fmt => `${fmt.rounds} Rounds For Time`,
+      rounds: () => rand(3,5),
+      pickExercises: () => pickN('mixed', rand(4,6)),
+      timer: { type:'fortime', cap:40 }
+    },
+    { name:'EMOM', desc:fmt => `EMOM ${fmt.totalMin} min`,
+      pickExercises: () => pickN('mixed', rand(3,4)),
+      repsMultiplier: 0.5,
+      timer: { type:'emom', rounds: null }
+    },
+    { name:'Chipper', desc:'For Time — one pass through',
+      pickExercises: () => pickN('mixed', rand(6,9)),
+      repsMultiplier: 1.3,
+      timer: { type:'fortime', cap:40 }
+    }
+  ],
+  strength: [
+    { name:'5x5 Strength', desc:'5 sets of 5 — rest 2:00 between sets',
+      pickExercises: () => pickN('strength', rand(3,4)),
+      fixedReps: '5',
+      sets: 5,
+      timer: { type:'rest', work:0, rest:120, rounds:5 }
+    },
+    { name:'EMOM Lifting', desc:fmt => `EMOM ${fmt.totalMin} min`,
+      pickExercises: () => pickN('strength', rand(2,3)),
+      repsMultiplier: 0.6,
+      timer: { type:'emom', rounds: () => rand(10,15) }
+    },
+    { name:'Build to Heavy', desc:'Every 2:00 — add weight each set',
+      pickExercises: () => pickN('strength', rand(1,2)),
+      fixedReps: '3',
+      sets: 8,
+      timer: { type:'rest', work:0, rest:120, rounds:8 }
+    },
+    { name:'Superset', desc:'4 rounds, 90s rest between rounds',
+      pickExercises: () => pickN('strength', rand(3,4)),
+      repsMultiplier: 1.5,
+      sets: 4,
+      timer: { type:'rest', work:0, rest:90, rounds:4 }
+    }
+  ]
+};
+
+function rand(a,b) { return a + Math.floor(Math.random()*(b-a+1)); }
+function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function pickN(type, n) {
+  const pool = shuffle(exercises[type]);
+  return pool.slice(0, Math.min(n, pool.length));
+}
+
+function generateWOD(type) {
+  currentType = type;
+  const formats = wodFormats[type];
+  const fmt = formats[Math.floor(Math.random()*formats.length)];
+
+  const exNames = fmt.pickExercises();
+  const mult = fmt.repsMultiplier || 1;
+  const exList = exNames.map(name => {
+    let reps = fmt.fixedReps || String(Math.round(parseInt(defaultReps[name]||'10') * mult));
+    if (fmt.useTabataReps) reps = '20s';
+    return { name, reps };
+  });
+
+  const minutes = fmt.minutes ? fmt.minutes() : null;
+  const rounds = fmt.rounds ? fmt.rounds() : null;
+  const totalMin = fmt.timer.rounds ? (typeof fmt.timer.rounds === 'function' ? fmt.timer.rounds() : fmt.timer.rounds) * exList.length : null;
+
+  let descText = typeof fmt.desc === 'function' ? fmt.desc({ minutes, rounds, totalMin }) : fmt.desc;
+
+  currentWOD = {
+    type, formatName: fmt.name, description: descText,
+    exercises: exList,
+    sets: fmt.sets || null,
+    timerConfig: { ...fmt.timer },
+    minutes, rounds, totalMin
+  };
+
+  // Resolve timer config
+  if (currentWOD.timerConfig.type === 'amrap') {
+    currentWOD.timerConfig.duration = (minutes || 20) * 60;
+  }
+  if (currentWOD.timerConfig.type === 'emom') {
+    currentWOD.timerConfig.totalRounds = totalMin || 12;
+  }
+  if (currentWOD.timerConfig.type === 'tabata') {
+    currentWOD.timerConfig.stations = exList.length;
+  }
+
+  renderWOD();
+  showScreen('wod');
+}
+
+function renderWOD() {
+  const w = currentWOD;
+  document.getElementById('wod-type-label').textContent = w.type.toUpperCase();
+  let html = `<div class="wod-name">${w.formatName}</div>`;
+  html += `<div class="wod-format">${w.description}</div>`;
+  if (w.sets) html += `<div class="wod-format">${w.sets} sets</div>`;
+  w.exercises.forEach((ex, i) => {
+    html += `<div class="exercise-row">
+      <span class="exercise-text">${ex.reps} ${ex.name}</span>
+      <div class="exercise-actions">
+        <button class="ex-btn" onclick="editExercise(${i})" title="Edit">&#9998;</button>
+        <button class="ex-btn" onclick="swapExercise(${i})" title="Swap">&#8635;</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('wod-card').innerHTML = html;
+}
+
+function reroll() { generateWOD(currentType); }
+
+function swapExercise(idx) {
+  const pool = exercises[currentType];
+  const used = new Set(currentWOD.exercises.map(e=>e.name));
+  const available = pool.filter(n=>!used.has(n));
+  if (!available.length) return;
+  const newName = available[Math.floor(Math.random()*available.length)];
+  currentWOD.exercises[idx].name = newName;
+  currentWOD.exercises[idx].reps = defaultReps[newName] || '10';
+  renderWOD();
+}
+
+function editExercise(idx) {
+  editIndex = idx;
+  const ex = currentWOD.exercises[idx];
+  document.getElementById('edit-name').value = ex.name;
+  document.getElementById('edit-reps').value = ex.reps;
+  document.getElementById('edit-modal').classList.add('active');
+}
+function closeModal() { document.getElementById('edit-modal').classList.remove('active'); }
+function saveEdit() {
+  currentWOD.exercises[editIndex].name = document.getElementById('edit-name').value;
+  currentWOD.exercises[editIndex].reps = document.getElementById('edit-reps').value;
+  closeModal();
+  renderWOD();
+}
+
+function confirmWOD() {
+  renderConfirmed();
+  showScreen('confirmed');
+}
+
+function renderConfirmed() {
+  const w = currentWOD;
+  let html = `<div class="wod-name">${w.formatName}</div>`;
+  html += `<div class="wod-format">${w.description}</div>`;
+  if (w.sets) html += `<div class="wod-format">${w.sets} sets</div>`;
+  w.exercises.forEach(ex => {
+    html += `<div class="exercise-row"><span class="exercise-text">${ex.reps} ${ex.name}</span></div>`;
+  });
+  document.getElementById('confirmed-card').innerHTML = html;
+
+  // Show/hide timer button based on config
+  const btn = document.getElementById('start-timer-btn');
+  btn.style.display = currentWOD.timerConfig ? '' : 'none';
+}
+
+// ── Timer ──
+function buildTimerPlan() {
+  const cfg = currentWOD.timerConfig;
+  const phases = [];
+  if (cfg.type === 'amrap') {
+    phases.push({ label:'AMRAP', duration: cfg.duration, countdown:true, beepAtEnd:true });
+  } else if (cfg.type === 'fortime') {
+    phases.push({ label:'GO!', duration: cfg.cap*60, countdown:true, countUp:true, beepAtEnd:true });
+  } else if (cfg.type === 'emom') {
+    for (let r=0; r<cfg.totalRounds; r++) {
+      phases.push({ label:`Min ${r+1} of ${cfg.totalRounds}`, duration:60, countdown:true, beepAtEnd:true, round:r+1, totalRounds:cfg.totalRounds });
+    }
+  } else if (cfg.type === 'tabata') {
+    const stations = cfg.stations || 4;
+    for (let s=0; s<stations; s++) {
+      for (let r=0; r<8; r++) {
+        phases.push({ label:`Station ${s+1}: WORK`, duration:20, countdown:true, beepAtEnd:true, round:r+1, totalRounds:8, isWork:true });
+        phases.push({ label:`Station ${s+1}: REST`, duration:10, countdown:true, beepAtEnd:true, round:r+1, totalRounds:8 });
+      }
+      if (s < stations-1) {
+        phases.push({ label:'Switch Station', duration:10, countdown:true, beepAtEnd:true });
+      }
+    }
+  } else if (cfg.type === 'rest') {
+    for (let r=0; r<cfg.rounds; r++) {
+      phases.push({ label:`Set ${r+1} of ${cfg.rounds} — WORK`, duration:0, countUp:true, manual:true, round:r+1, totalRounds:cfg.rounds });
+      if (r < cfg.rounds-1) {
+        phases.push({ label:'REST', duration:cfg.rest, countdown:true, beepAtEnd:true, round:r+1, totalRounds:cfg.rounds });
+      }
+    }
+  }
+  return phases;
+}
+
+function fmtTime(sec) {
+  const m = Math.floor(Math.abs(sec)/60);
+  const s = Math.abs(sec)%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function startTimer() {
+  // Unlock audio on user gesture
+  getAudioCtx().resume();
+  shortBeep();
+
+  timerPlan = buildTimerPlan();
+  if (!timerPlan.length) return;
+  timerPhaseIdx = 0;
+  timerPaused = false;
+  requestWakeLock();
+  showScreen('timer');
+  startPhase();
+}
+
+function startPhase() {
+  const phase = timerPlan[timerPhaseIdx];
+  timerPhaseRemaining = phase.duration;
+  timerSeconds = phase.countUp ? 0 : phase.duration;
+  renderTimer();
+  document.getElementById('timer-toggle').textContent = phase.manual ? 'Next Set' : 'Pause';
+
+  if (phase.manual) {
+    // count-up, wait for manual advance
+    timerInterval = setInterval(() => {
+      if (!timerPaused) { timerSeconds++; renderTimer(); }
+    }, 1000);
+  } else {
+    timerInterval = setInterval(() => {
+      if (timerPaused) return;
+      timerPhaseRemaining--;
+      timerSeconds = phase.countUp ? timerSeconds+1 : timerPhaseRemaining;
+      renderTimer();
+      // beeps at 3,2,1
+      if (timerPhaseRemaining <= 3 && timerPhaseRemaining > 0) shortBeep();
+      if (timerPhaseRemaining <= 0) {
+        if (phase.beepAtEnd) longBeep();
+        clearInterval(timerInterval);
+        nextPhase();
+      }
+    }, 1000);
+  }
+}
+
+function nextPhase() {
+  timerPhaseIdx++;
+  if (timerPhaseIdx >= timerPlan.length) {
+    // Done
+    doubleBeep(); setTimeout(doubleBeep, 400);
+    document.getElementById('timer-phase').textContent = 'DONE!';
+    document.getElementById('timer-display').textContent = '00:00';
+    document.getElementById('timer-round').textContent = '';
+    document.getElementById('timer-toggle').textContent = 'Pause';
+    releaseWakeLock();
+    return;
+  }
+  startPhase();
+}
+
+function renderTimer() {
+  document.getElementById('timer-display').textContent = fmtTime(timerSeconds);
+  const phase = timerPlan[timerPhaseIdx];
+  document.getElementById('timer-phase').textContent = phase.label;
+  document.getElementById('timer-round').textContent =
+    phase.round ? `Round ${phase.round}/${phase.totalRounds}` : '';
+}
+
+function toggleTimer() {
+  const phase = timerPlan[timerPhaseIdx];
+  if (phase && phase.manual) {
+    // manual mode: "Next Set" advances
+    clearInterval(timerInterval);
+    longBeep();
+    nextPhase();
+    return;
+  }
+  timerPaused = !timerPaused;
+  document.getElementById('timer-toggle').textContent = timerPaused ? 'Resume' : 'Pause';
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  releaseWakeLock();
+  showScreen('confirmed');
+}
+
+// ── History (localStorage) ──
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('wod_history') || '[]'); } catch { return []; }
+}
+function saveHistory(h) { localStorage.setItem('wod_history', JSON.stringify(h)); }
+
+function logWorkout() {
+  const h = getHistory();
+  h.unshift({
+    date: new Date().toISOString(),
+    wod: JSON.parse(JSON.stringify(currentWOD))
+  });
+  // Keep last 100
+  if (h.length > 100) h.length = 100;
+  saveHistory(h);
+  alert('Workout logged!');
+}
+
+function showHistory() {
+  const h = getHistory();
+  const list = document.getElementById('history-list');
+  if (!h.length) {
+    list.innerHTML = '<div class="history-empty">No workouts logged yet.<br>Complete a workout to see it here.</div>';
+    showScreen('history');
+    return;
+  }
+  list.innerHTML = h.map((entry, i) => {
+    const d = new Date(entry.date);
+    const dateStr = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    const exSummary = entry.wod.exercises.map(e => `${e.reps} ${e.name}`).join(' | ');
+    return `<div class="history-item" onclick="loadHistoryWOD(${i})" style="margin-bottom:10px;">
+      <div class="history-date">${dateStr}</div>
+      <div class="history-wod-name">${entry.wod.formatName}</div>
+      <div class="history-type">${entry.wod.type}</div>
+      <div class="history-exercises">${exSummary}</div>
+    </div>`;
+  }).join('');
+  showScreen('history');
+}
+
+function loadHistoryWOD(idx) {
+  const h = getHistory();
+  currentWOD = JSON.parse(JSON.stringify(h[idx].wod));
+  currentType = currentWOD.type;
+  renderWOD();
+  showScreen('wod');
+}
+
+// ── PWA Registration ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
