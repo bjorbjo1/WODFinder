@@ -1,8 +1,8 @@
-const CACHE_NAME = 'wod-finder-v1';
+const CACHE_NAME = 'wod-finder-v2';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  '/WODFinder/',
+  '/WODFinder/index.html',
+  '/WODFinder/manifest.json'
 ];
 
 self.addEventListener('install', e => {
