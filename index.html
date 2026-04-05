@@ -58,13 +58,15 @@ body {
   font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:2px;
   text-align:center; display:block; margin-bottom:6px;
 }
-.pill-grid { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.pill-grid { display:flex; flex-direction:column; gap:12px; width:100%; }
+.pill-grid-2col { flex-direction:row; flex-wrap:wrap; }
+.pill-grid-2col .pill { width:calc(50% - 6px); flex:none; font-size:1.05em; padding:16px 14px; }
 .pill {
   background: var(--card); border:2px solid var(--accent2); color:var(--text);
-  font-size:1.05em; padding:14px 20px; border-radius:14px; cursor:pointer;
-  display:flex; align-items:center; gap:10px; transition:all .15s; white-space:nowrap;
+  font-size:1.2em; padding:18px 22px; border-radius:16px; cursor:pointer;
+  display:flex; align-items:center; gap:14px; transition:all .15s; width:100%;
 }
-.pill:active { transform:scale(0.96); }
+.pill:active { transform:scale(0.97); }
 .pill.selected { border-color:var(--green); background:rgba(78,204,163,0.12); color:var(--green); }
 .pill svg { flex-shrink:0; }
 .divider { color:var(--muted); text-align:center; font-size:0.85em; margin:4px 0; }
@@ -335,17 +337,17 @@ body {
     <div class="builder-step-title">Body Focus</div>
     <div class="pill-grid" id="focus-pills">
       <button class="pill" onclick="selectPill('focus','any')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
       <button class="pill" onclick="selectPill('focus','upper')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v8M8 6l4 4 4-4M4 16l4-4M20 16l-4-4"/></svg>Arms &amp; Shoulders</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v8M8 6l4 4 4-4M4 16l4-4M20 16l-4-4"/></svg>Arms &amp; Shoulders</button>
       <button class="pill" onclick="selectPill('focus','core')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M12 2v20"/></svg>Core</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M12 2v20"/></svg>Core</button>
       <button class="pill" onclick="selectPill('focus','legs')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 4v7l-3 9M14 4v7l3 9M8 11h8"/></svg>Legs</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 4v7l-3 9M14 4v7l3 9M8 11h8"/></svg>Legs</button>
       <button class="pill" onclick="selectPill('focus','back')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8 2 5 6 5 12s3 10 7 10 7-4 7-10S16 2 12 2z"/><path d="M12 2v20"/></svg>Back &amp; Pull</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8 2 5 6 5 12s3 10 7 10 7-4 7-10S16 2 12 2z"/><path d="M12 2v20"/></svg>Back &amp; Pull</button>
       <button class="pill" onclick="selectPill('focus','full')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="4" r="2.5"/><path d="M12 6.5v6M12 12.5l-4 7M12 12.5l4 7M6 10h12"/></svg>Full Body</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="4" r="2.5"/><path d="M12 6.5v6M12 12.5l-4 7M12 12.5l4 7M6 10h12"/></svg>Full Body</button>
     </div>
   </div>
 
@@ -355,13 +357,13 @@ body {
     <div class="builder-step-title">Theme</div>
     <div class="pill-grid" id="theme-pills">
       <button class="pill" onclick="selectPill('theme','any')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
       <button class="pill" onclick="selectPill('theme','cardio')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.3l7.8-7.8 1-1.1a5.5 5.5 0 000-7.8z"/></svg>Cardio</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21.3l7.8-7.8 1-1.1a5.5 5.5 0 000-7.8z"/></svg>Cardio</button>
       <button class="pill" onclick="selectPill('theme','mixed')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Mixed</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Mixed</button>
       <button class="pill" onclick="selectPill('theme','strength')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6.5 6.5v11M17.5 6.5v11M2 9v6M22 9v6M6.5 12h11M2 12h4.5M17.5 12H22"/></svg>Strength</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6.5 6.5v11M17.5 6.5v11M2 9v6M22 9v6M6.5 12h11M2 12h4.5M17.5 12H22"/></svg>Strength</button>
     </div>
   </div>
 
@@ -369,23 +371,23 @@ body {
   <div class="builder-section" id="step-format">
     <span class="builder-step-num">Step 3 of 4</span>
     <div class="builder-step-title">Format</div>
-    <div class="pill-grid" id="format-pills">
+    <div class="pill-grid pill-grid-2col" id="format-pills">
       <button class="pill" onclick="selectPill('format','any')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16l-6.4 5.2 2.4-7.2-6-4.8h7.6z"/></svg>Any</button>
       <button class="pill" onclick="selectPill('format','amrap')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>AMRAP</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>AMRAP</button>
       <button class="pill" onclick="selectPill('format','chipper')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 10h12M4 14h8M4 18h4"/></svg>Chipper</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 10h12M4 14h8M4 18h4"/></svg>Chipper</button>
       <button class="pill" onclick="selectPill('format','partner_chipper')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>Partner Chipper</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>Partner Chipper</button>
       <button class="pill" onclick="selectPill('format','emom')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6"/><path d="M12 12l3.5 3.5"/></svg>EMOM</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6"/><path d="M12 12l3.5 3.5"/></svg>EMOM</button>
       <button class="pill" onclick="selectPill('format','rounds')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>Rounds For Time</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg>Rounds For Time</button>
       <button class="pill" onclick="selectPill('format','tabata')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Tabata</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Tabata</button>
       <button class="pill" onclick="selectPill('format','5x5')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>5x5 Strength</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>5x5 Strength</button>
     </div>
   </div>
 
@@ -395,15 +397,15 @@ body {
     <div class="builder-step-title">Difficulty</div>
     <div class="pill-grid" id="difficulty-pills">
       <button class="pill" onclick="selectPill('difficulty','easy')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>Easy Going</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>Easy Going</button>
       <button class="pill" onclick="selectPill('difficulty','moderate')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>Moderate</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>Moderate</button>
       <button class="pill" onclick="selectPill('difficulty','spicy')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z"/></svg>Spicy</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z"/></svg>Spicy</button>
       <button class="pill" onclick="selectPill('difficulty','brutal')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z"/><path d="M12 8c-2 3-4 4.5-4 6.5a4 4 0 008 0c0-2-2-3.5-4-6.5z"/></svg>Brutal</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M12 2C8 7 4 10 4 14a8 8 0 0016 0c0-4-4-7-8-12z"/><path d="M12 8c-2 3-4 4.5-4 6.5a4 4 0 008 0c0-2-2-3.5-4-6.5z"/></svg>Brutal</button>
       <button class="pill" onclick="selectPill('difficulty','insane')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Insane</button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Insane</button>
     </div>
   </div>
 </div>
