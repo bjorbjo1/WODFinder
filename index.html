@@ -50,10 +50,14 @@ body {
 /* Builder screen */
 #builder { align-items:center; gap:16px; padding-top:calc(var(--safe-top) + 16px); }
 #builder h2 { font-size:1.4em; color:var(--accent); }
-.builder-section { width:100%; max-width:380px; }
-.builder-label {
-  font-size:0.8em; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px;
-  font-weight:600; margin-bottom:8px;
+.builder-section { width:100%; max-width:380px; display:none; }
+.builder-section.visible { display:block; }
+.builder-step-title {
+  font-size:1.3em; font-weight:700; color:var(--text); text-align:center; margin-bottom:12px;
+}
+.builder-step-num {
+  font-size:0.75em; color:var(--accent); text-transform:uppercase; letter-spacing:2px;
+  text-align:center; display:block; margin-bottom:4px;
 }
 .pill-grid { display:flex; flex-wrap:wrap; gap:8px; }
 .pill {
@@ -295,7 +299,7 @@ body {
   <h1>WOD</h1>
   <p>Workout of the Day</p>
   <div class="start-grid">
-    <button class="start-btn" onclick="showScreen('builder')">
+    <button class="start-btn" onclick="startBuilder()">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
       <div>New Workout<span class="start-btn-sub">Choose focus, theme &amp; format</span></div>
     </button>
@@ -312,12 +316,12 @@ body {
 
 <!-- BUILDER SCREEN -->
 <div id="builder" class="screen">
-  <div class="back-bar"><button class="back-btn" onclick="showScreen('start')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button></div>
-  <h2>Build Your Workout</h2>
+  <div class="back-bar"><button class="back-btn" id="builder-back-btn" onclick="builderBack()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>Back</button></div>
 
   <!-- Step 1: Focus -->
-  <div class="builder-section">
-    <div class="builder-label">1. Body Focus</div>
+  <div class="builder-section" id="step-focus">
+    <span class="builder-step-num">Step 1 of 4</span>
+    <div class="builder-step-title">Body Focus</div>
     <div class="pill-grid" id="focus-pills">
       <button class="pill" onclick="selectPill('focus','any')">Any</button>
       <button class="pill" onclick="selectPill('focus','upper')">
@@ -334,8 +338,9 @@ body {
   </div>
 
   <!-- Step 2: Theme -->
-  <div class="builder-section">
-    <div class="builder-label">2. Theme</div>
+  <div class="builder-section" id="step-theme">
+    <span class="builder-step-num">Step 2 of 4</span>
+    <div class="builder-step-title">Theme</div>
     <div class="pill-grid" id="theme-pills">
       <button class="pill" onclick="selectPill('theme','any')">Any</button>
       <button class="pill" onclick="selectPill('theme','cardio')">
@@ -348,8 +353,9 @@ body {
   </div>
 
   <!-- Step 3: Format -->
-  <div class="builder-section">
-    <div class="builder-label">3. Format</div>
+  <div class="builder-section" id="step-format">
+    <span class="builder-step-num">Step 3 of 4</span>
+    <div class="builder-step-title">Format</div>
     <div class="pill-grid" id="format-pills">
       <button class="pill" onclick="selectPill('format','any')">Any</button>
       <button class="pill" onclick="selectPill('format','amrap')">
@@ -369,7 +375,18 @@ body {
     </div>
   </div>
 
-  <button class="generate-btn" id="generate-btn" onclick="generateFromBuilder()">Generate Workout</button>
+  <!-- Step 4: Difficulty -->
+  <div class="builder-section" id="step-difficulty">
+    <span class="builder-step-num">Step 4 of 4</span>
+    <div class="builder-step-title">Difficulty</div>
+    <div class="pill-grid" id="difficulty-pills">
+      <button class="pill" onclick="selectPill('difficulty','easy')">Easy Going</button>
+      <button class="pill" onclick="selectPill('difficulty','moderate')">Moderate</button>
+      <button class="pill" onclick="selectPill('difficulty','spicy')">Spicy</button>
+      <button class="pill" onclick="selectPill('difficulty','brutal')">Brutal</button>
+      <button class="pill" onclick="selectPill('difficulty','insane')">Insane</button>
+    </div>
+  </div>
 </div>
 
 <!-- WOD SCREEN -->
@@ -453,34 +470,73 @@ body {
 
 <script>
 // ── Builder State ──
-const builderState = { focus: null, theme: null, format: null };
+const builderState = { focus: null, theme: null, format: null, difficulty: null };
+const builderSteps = ['focus', 'theme', 'format', 'difficulty'];
+let builderStepIdx = 0;
+
+function showBuilderStep(idx) {
+  builderStepIdx = idx;
+  builderSteps.forEach((step, i) => {
+    const el = document.getElementById('step-' + step);
+    el.classList.toggle('visible', i === idx);
+  });
+}
 
 function selectPill(category, value) {
   builderState[category] = value;
-  // Update pill UI
   const container = document.getElementById(category + '-pills');
   container.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
   event.currentTarget.classList.add('selected');
-  updateGenerateBtn();
+  // Auto-advance to next step or generate
+  setTimeout(() => {
+    const stepIdx = builderSteps.indexOf(category);
+    if (stepIdx < builderSteps.length - 1) {
+      showBuilderStep(stepIdx + 1);
+    } else {
+      generateFromBuilder();
+    }
+  }, 200);
 }
 
-function updateGenerateBtn() {
-  const btn = document.getElementById('generate-btn');
-  const ready = builderState.focus && builderState.theme && builderState.format;
-  btn.classList.toggle('ready', !!ready);
+function builderBack() {
+  if (builderStepIdx > 0) {
+    showBuilderStep(builderStepIdx - 1);
+  } else {
+    showScreen('start');
+  }
+}
+
+function startBuilder() {
+  builderState.focus = null;
+  builderState.theme = null;
+  builderState.format = null;
+  builderState.difficulty = null;
+  // Clear all pill selections
+  document.querySelectorAll('#builder .pill').forEach(p => p.classList.remove('selected'));
+  showBuilderStep(0);
+  showScreen('builder');
 }
 
 function surpriseMe() {
-  // Set all to random and generate
   builderState.focus = 'any';
   builderState.theme = 'any';
   builderState.format = 'any';
+  builderState.difficulty = ['easy','moderate','spicy','brutal','insane'][rand(0,4)];
   generateFromBuilder();
 }
 
+const difficultyMultipliers = {
+  easy: 0.6,
+  moderate: 0.85,
+  spicy: 1.0,
+  brutal: 1.3,
+  insane: 1.7
+};
+
 function generateFromBuilder() {
-  const { focus, theme, format } = builderState;
-  if (!focus || !theme || !format) return;
+  const { focus, theme, format, difficulty } = builderState;
+  if (!focus || !theme || !format || !difficulty) return;
+  const diffMult = difficultyMultipliers[difficulty] || 1.0;
 
   // Resolve "any" choices
   const focusOptions = ['any','upper','core','legs','back','full'];
@@ -498,27 +554,25 @@ function generateFromBuilder() {
   const pool = currentFocus ? bodyFocusExercises[currentFocus] : exercises[actualTheme];
   const pickFromPool = (n) => shuffle(pool).slice(0, Math.min(n, pool.length));
 
+  const scaleReps = (name, mult) => String(Math.max(1, Math.round(parseInt(defaultReps[name]||'10') * mult * diffMult)));
+
   if (actualFormat === 'amrap') {
-    const mins = rand(16, 25);
-    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: defaultReps[name] || '10' }));
+    const mins = Math.round(rand(16, 25) * diffMult);
+    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: scaleReps(name, 1) }));
     currentWOD = {
       type: actualTheme, formatName: 'AMRAP', description: `AMRAP ${mins} min`,
       exercises: exList, sets: null,
       timerConfig: { type:'amrap', duration: mins*60 }
     };
   } else if (actualFormat === 'chipper') {
-    const exList = pickFromPool(rand(8,12)).map(name => ({
-      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 1.5))
-    }));
+    const exList = pickFromPool(rand(8,12)).map(name => ({ name, reps: scaleReps(name, 1.5) }));
     currentWOD = {
       type: actualTheme, formatName: 'Chipper', description: 'For Time — work through all exercises once',
       exercises: exList, sets: null,
       timerConfig: { type:'fortime', cap:40 }
     };
   } else if (actualFormat === 'partner_chipper') {
-    const exList = pickFromPool(rand(8,12)).map(name => ({
-      name, reps: String(Math.round(parseInt(defaultReps[name]||'10') * 2))
-    }));
+    const exList = pickFromPool(rand(8,12)).map(name => ({ name, reps: scaleReps(name, 2) }));
     currentWOD = {
       type: actualTheme, formatName: 'Partner Chipper',
       description: 'For Time with a partner — split reps, one works at a time',
@@ -526,9 +580,7 @@ function generateFromBuilder() {
       timerConfig: { type:'fortime', cap:40 }
     };
   } else if (actualFormat === 'emom') {
-    const exList = pickFromPool(rand(3,4)).map(name => ({
-      name, reps: String(Math.max(1, Math.round(parseInt(defaultReps[name]||'10') * 0.5)))
-    }));
+    const exList = pickFromPool(rand(3,4)).map(name => ({ name, reps: scaleReps(name, 0.5) }));
     const totalMin = exList.length * rand(3,5);
     currentWOD = {
       type: actualTheme, formatName: 'EMOM', description: `EMOM ${totalMin} min`,
@@ -536,8 +588,8 @@ function generateFromBuilder() {
       timerConfig: { type:'emom', totalRounds: totalMin }
     };
   } else if (actualFormat === 'rounds') {
-    const rounds = rand(3,5);
-    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: defaultReps[name] || '10' }));
+    const rounds = Math.max(2, Math.round(rand(3,5) * diffMult));
+    const exList = pickFromPool(rand(4,6)).map(name => ({ name, reps: scaleReps(name, 1) }));
     currentWOD = {
       type: actualTheme, formatName: 'Rounds For Time', description: `${rounds} Rounds For Time`,
       exercises: exList, sets: null, rounds,
@@ -551,11 +603,14 @@ function generateFromBuilder() {
       timerConfig: { type:'tabata', stations: exList.length }
     };
   } else if (actualFormat === '5x5') {
-    const exList = pickFromPool(rand(3,4)).map(name => ({ name, reps: '5' }));
+    const reps = Math.max(1, Math.round(5 * diffMult));
+    const sets = Math.max(3, Math.round(5 * diffMult));
+    const exList = pickFromPool(rand(3,4)).map(name => ({ name, reps: String(reps) }));
     currentWOD = {
-      type: actualTheme, formatName: '5x5 Strength', description: '5 sets of 5 — rest 2:00 between sets',
-      exercises: exList, sets: 5,
-      timerConfig: { type:'rest', work:0, rest:120, rounds:5 }
+      type: actualTheme, formatName: `${sets}x${reps} Strength`,
+      description: `${sets} sets of ${reps} — rest 2:00 between sets`,
+      exercises: exList, sets,
+      timerConfig: { type:'rest', work:0, rest:120, rounds:sets }
     };
   }
 
@@ -1529,12 +1584,7 @@ function loadHistoryWOD(idx) {
 }
 
 // ── Init ──
-// Auto-select "Any" for all builder pills on load
-['focus','theme','format'].forEach(cat => {
-  const first = document.querySelector(`#${cat}-pills .pill`);
-  if (first) { first.classList.add('selected'); builderState[cat] = 'any'; }
-});
-updateGenerateBtn();
+showBuilderStep(0);
 
 // ── PWA Registration ──
 if ('serviceWorker' in navigator) {
