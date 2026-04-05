@@ -106,6 +106,18 @@ body {
   border-radius:8px; font-size:0.85em; cursor:pointer; display:flex; align-items:center; justify-content:center;
 }
 .ex-btn:active { opacity:0.7; }
+/* Exercise info panel */
+.ex-info {
+  display:none; padding:8px 10px; margin:-2px 0 4px; background:rgba(15,52,96,0.4);
+  border-radius:8px; font-size:0.85em; color:var(--muted); line-height:1.4;
+}
+.ex-info.open { display:block; }
+.ex-info-link {
+  display:inline-flex; align-items:center; gap:4px; color:var(--green);
+  text-decoration:none; font-size:0.85em; margin-top:4px;
+}
+.ex-info-link:active { opacity:0.7; }
+.ex-btn-info { background:transparent; border:1px solid var(--accent2); font-size:0.75em; }
 .btn-row { display:flex; gap:10px; padding-top:14px; }
 .btn {
   flex:1; padding:15px; border:none; border-radius:12px; font-size:1em;
@@ -1042,6 +1054,73 @@ function estimateKcal(wod) {
   return Math.round(total);
 }
 
+// Exercise descriptions
+const exerciseInfo = {
+  'Back Squat':'Barbell on upper back, squat below parallel, drive up through heels.',
+  'Front Squat':'Barbell in front rack position, squat below parallel, elbows high.',
+  'Deadlift':'Lift barbell from floor to hip height with flat back, arms straight.',
+  'Bench Press':'Lie on bench, lower barbell to chest, press up to lockout.',
+  'Overhead Press':'Press barbell from shoulders to overhead lockout. Strict, no leg drive.',
+  'Power Clean':'Explosive pull from floor, catch barbell in front rack at quarter squat.',
+  'Clean & Jerk':'Clean barbell to shoulders, then jerk overhead to lockout.',
+  'Snatch':'One movement: pull barbell from floor to overhead in a wide grip.',
+  'Push Press':'Dip knees slightly, use leg drive to press barbell overhead.',
+  'Push Jerk':'Like push press but re-bend knees to catch bar overhead.',
+  'Strict Press':'Press barbell overhead with no leg drive. Pure shoulder strength.',
+  'Sumo Deadlift':'Wide stance deadlift, hands inside knees, hips low.',
+  'Romanian Deadlift':'Hinge at hips, lower barbell along legs with slight knee bend. Hamstring focused.',
+  'Barbell Row':'Hinge forward, pull barbell to lower chest. Squeeze shoulder blades.',
+  'Floor Press':'Like bench press but lying on the floor. Shorter range of motion.',
+  'Thruster':'Front squat into overhead press in one fluid movement.',
+  'Thrusters':'Front squat into overhead press in one fluid movement.',
+  'Overhead Squat':'Hold barbell overhead with wide grip while squatting below parallel.',
+  'Hang Clean':'Start at hip height, pull and catch barbell in front rack.',
+  'Hang Power Clean':'Start at hip height, pull and catch in quarter squat.',
+  'Wall Balls':'Squat with medicine ball, stand and throw to target on wall.',
+  'Kettlebell Swings':'Hinge at hips, swing kettlebell to eye level with straight arms.',
+  'Pull-Ups':'Hang from bar, pull chin above bar. Kipping or strict.',
+  'Push-Ups':'Chest to floor, push up to full arm extension. Body straight.',
+  'Toes-to-Bar':'Hang from bar, swing feet up to touch the bar.',
+  'Dumbbell Snatch':'One arm: pull dumbbell from floor to overhead in one motion.',
+  'Lunges':'Step forward, lower back knee toward floor, alternate legs.',
+  'Ring Rows':'Hold gymnastic rings, lean back, pull chest to rings.',
+  'Sit-Ups':'Lie on back, knees bent, sit up and touch toes.',
+  'Goblet Squats':'Hold kettlebell at chest, squat below parallel.',
+  'Dumbbell Clean & Jerk':'Clean dumbbells to shoulders, then jerk overhead.',
+  'SDHP':'Sumo Deadlift High Pull: wide stance, pull barbell to chin height.',
+  'Box Step-Ups':'Step onto a box one foot at a time, stand tall, step down.',
+  'Handstand Push-Ups':'Kick up to handstand against wall, lower head to floor, push up.',
+  'Muscle-Ups':'Pull-up that transitions into a dip on top of the bar or rings.',
+  'Rope Climbs':'Climb a vertical rope using arms and legs, touch the top.',
+  'Pistol Squats':'Single leg squat, other leg extended forward. Full depth.',
+  'Turkish Get-Ups':'Lie down holding weight overhead, stand up, lie back down.',
+  'Farmer Carry (m)':'Hold heavy weights at sides, walk the prescribed distance.',
+  'V-Ups':'Lie flat, simultaneously lift legs and torso to form a V shape.',
+  'Plank Hold (sec)':'Hold push-up position on forearms. Keep body straight.',
+  'Ring Dips':'Support on rings, lower body until shoulders below elbows, press up.',
+  'Box Jumps':'Jump from floor onto a box with both feet, stand tall.',
+  'Double Unders':'Jump rope passes under feet twice per jump.',
+  'Burpees':'Chest to floor, push up, jump with hands overhead.',
+  'Rowing (Cal)':'Row on an erg for the prescribed calories.',
+  'Calorie Row':'Row on an erg for the prescribed calories.',
+  'Assault Bike (Cal)':'Pedal and push/pull handles on an air bike for calories.',
+  'Running (m)':'Run the prescribed distance.',
+  'Jump Rope Singles':'Standard jump rope, one pass per jump.',
+  'Mountain Climbers':'Plank position, alternate driving knees toward chest rapidly.',
+  'High Knees':'Run in place, driving knees up to hip height.',
+  'Shuttle Runs':'Sprint back and forth between two points.',
+  'Ski Erg (Cal)':'Pull handles down on ski erg machine for calories.',
+  'Burpee Box Jump Overs':'Burpee facing box, jump over to other side.',
+  'Lateral Jumps':'Jump side to side over a line or low object.',
+  'Tuck Jumps':'Jump and pull knees to chest at the top.',
+  'Bear Crawl (m)':'Crawl on hands and feet, knees hovering off the ground.'
+};
+
+function toggleExInfo(idx) {
+  const el = document.getElementById('ex-info-' + idx);
+  if (el) el.classList.toggle('open');
+}
+
 function renderWOD() {
   const w = currentWOD;
   document.getElementById('wod-type-label').textContent = w.type.toUpperCase();
@@ -1055,14 +1134,24 @@ function renderWOD() {
   w.exercises.forEach((ex, i) => {
     const equip = equipmentMap[ex.name];
     const equipTag = equip ? `<span class="exercise-equip">${equip}</span>` : '';
+    const info = exerciseInfo[ex.name];
+    const ytQuery = encodeURIComponent(ex.name + ' exercise how to');
     html += `<div class="exercise-row">
       <span class="exercise-text">${ex.reps} ${ex.name}${equipTag}</span>
       <div class="exercise-actions">
+        ${info ? `<button class="ex-btn ex-btn-info" onclick="toggleExInfo(${i})" title="Info">?</button>` : ''}
         <button class="ex-btn" onclick="editExercise(${i})" title="Edit">&#9998;</button>
         <button class="ex-btn" onclick="swapExercise(${i})" title="Swap">&#8635;</button>
         <button class="ex-btn" onclick="removeExercise(${i})" title="Remove" style="background:var(--accent);">&#10005;</button>
       </div>
     </div>`;
+    if (info) {
+      html += `<div class="ex-info" id="ex-info-${i}">${info}<br>
+        <a class="ex-info-link" href="https://www.youtube.com/results?search_query=${ytQuery}" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Watch video
+        </a>
+      </div>`;
+    }
   });
   html += `<button class="add-exercise-btn" onclick="addRandomExercise()">+ Add Exercise</button>`;
   // Time cap / duration adjuster for fortime and amrap
